@@ -47,7 +47,7 @@
     "ON_DUTY": "في الخدمة الآن",
     "ROUTES": "المسارات المتاحة",
     "AVG_RATING": "متوسط تقييم الشبكة",
-    "FLEET_BREAKDOWN": "توزيع الأسطول"
+    "VEHICLE_TYPE": "نوع المركبة"
   },
   "DRIVER": {
     "ON_DUTY": "في الخدمة",

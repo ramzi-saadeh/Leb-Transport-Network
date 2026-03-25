@@ -1,0 +1,18 @@
+{
+  "rules": {
+    "driver_locations": {
+      // Anyone can read live driver locations (public transport tracking)
+      ".read": true,
+      "$driverId": {
+        // Only writes with required fields are accepted
+        ".write": true,
+        ".validate": "newData.hasChildren(['lat','lng','routeId','isActive','updatedAt'])"
+      }
+    },
+    // Deny all other paths by default
+    "$other": {
+      ".read": false,
+      ".write": false
+    }
+  }
+}

@@ -1,38 +1,32 @@
-<div class="page-container">
-  <div class="page-scroll">
-    <div class="cs-header">
-      <button class="btn-ghost back-btn" (click)="goBack()">← {{ 'SHARED.HOME' | translate }}</button>
+<!-- Route selector bar — floats over map -->
+<div class="map-topbar">
+  <select class="map-route-select" [(ngModel)]="selectedRouteId" (ngModelChange)="onRouteChange($event)">
+    <option value="">{{ 'MAP.SELECT_ROUTE' | translate }}</option>
+    @for (r of routes(); track r.id) {
+      <option [value]="r.id">{{ r.name }}</option>
+    }
+  </select>
+
+  @if (selectedRouteId()) {
+    <div class="live-chip" [class.has-drivers]="driverCount() > 0">
+      @if (driverCount() > 0) {
+        <span class="live-dot"></span>
+        {{ driverCount() }} {{ 'MAP.LIVE_DRIVERS' | translate }}
+      } @else {
+        <span class="no-driver-dot"></span>
+        {{ 'MAP.NO_LIVE_DRIVERS' | translate }}
+      }
     </div>
-
-    <div class="cs-body">
-      <div class="cs-icon-wrap">
-        <span class="cs-icon">🗺️</span>
-        <div class="cs-pulse"></div>
-      </div>
-
-      <h1 class="cs-title">{{ 'MAP.COMING_TITLE' | translate }}</h1>
-      <p class="cs-subtitle">{{ 'MAP.COMING_SUB' | translate }}</p>
-
-      <div class="cs-features">
-        <div class="cs-feature">
-          <span class="cs-feature-icon">📍</span>
-          <span>{{ 'MAP.FEAT_LIVE' | translate }}</span>
-        </div>
-        <div class="cs-feature">
-          <span class="cs-feature-icon">🚌</span>
-          <span>{{ 'MAP.FEAT_ROUTES' | translate }}</span>
-        </div>
-        <div class="cs-feature">
-          <span class="cs-feature-icon">✋</span>
-          <span>{{ 'MAP.FEAT_WAITING' | translate }}</span>
-        </div>
-        <div class="cs-feature">
-          <span class="cs-feature-icon">⏱️</span>
-          <span>{{ 'MAP.FEAT_ETA' | translate }}</span>
-        </div>
-      </div>
-
-      <div class="cs-badge">{{ 'MAP.COMING_BADGE' | translate }}</div>
-    </div>
-  </div>
+  }
 </div>
+
+<!-- Full-screen Leaflet map -->
+<div id="live-map" #liveMap></div>
+
+<!-- Empty state overlay when no route selected -->
+@if (!selectedRouteId()) {
+  <div class="map-empty">
+    <span class="map-empty-icon">🗺️</span>
+    <p>{{ 'MAP.PICK_ROUTE' | translate }}</p>
+  </div>
+}

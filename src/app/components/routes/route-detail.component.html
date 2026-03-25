@@ -79,6 +79,12 @@
       <div class="p-lg" style="padding-top: 0">
         <div class="section-header">
           <h2>Drivers on this Route</h2>
+          @if (liveCount() > 0) {
+            <span class="live-badge">
+              <span class="live-dot"></span>
+              {{ liveCount() }} live now
+            </span>
+          }
         </div>
 
         @if (driversLoading()) {

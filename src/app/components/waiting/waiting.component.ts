@@ -1,4 +1,4 @@
-import { Component, inject, signal, effect, model, Signal } from '@angular/core';
+import { Component, inject, signal, effect, model, Signal, OnInit } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
@@ -21,7 +21,7 @@ type WaitingState = 'idle' | 'locating' | 'confirming' | 'waiting' | 'error';
   templateUrl: './waiting.component.html',
   styleUrl: './waiting.component.css'
 })
-export class WaitingComponent {
+export class WaitingComponent implements OnInit {
   readonly routes: Signal<Route[]>;
   readonly state = signal<WaitingState>('idle');
   readonly location = signal<{ lat: number; lng: number } | null>(null);
@@ -68,6 +68,18 @@ export class WaitingComponent {
 
   goBack() { this.locationService.back(); }
   private readonly activatedRoute = inject(ActivatedRoute);
+
+  async ngOnInit(): Promise<void> {
+    // Restore state if this device already has an active waiting entry
+    const existing = await this.waitingService.getActiveByDevice(this.authService.currentDeviceId);
+    if (existing && existing.id) {
+      this.activeDocId.set(existing.id);
+      this.location.set(existing.location);
+      this.count.set(existing.count);
+      this.selectedRouteId.set(existing.routeId);
+      this.state.set('waiting');
+    }
+  }
 
   adjustCount(delta: number): void {
     this.count.update(c => Math.max(1, Math.min(10, c + delta)));

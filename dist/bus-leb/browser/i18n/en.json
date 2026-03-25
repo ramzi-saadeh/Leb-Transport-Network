@@ -47,7 +47,7 @@
     "ON_DUTY": "On Duty Now",
     "ROUTES": "Available Routes",
     "AVG_RATING": "Avg. Network Rating",
-    "FLEET_BREAKDOWN": "Fleet Breakdown"
+    "VEHICLE_TYPE": "Vehicle Type"
   },
   "DRIVER": {
     "ON_DUTY": "On Duty",

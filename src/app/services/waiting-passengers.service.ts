@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import {
   Firestore, collection, collectionData, addDoc, deleteDoc, updateDoc,
-  doc, query, where, serverTimestamp, Timestamp
+  doc, query, where, serverTimestamp, Timestamp, getDocs
 } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -63,5 +63,20 @@ export class WaitingPassengersService {
   async updateWaitingCount(id: string, count: number): Promise<void> {
     const ref = doc(this.firestore, 'waiting_passengers', id);
     await updateDoc(ref, { count });
+  }
+
+  /** Returns the first active (non-expired) waiting entry for this device, or null. */
+  async getActiveByDevice(deviceId: string): Promise<WaitingPassenger | null> {
+    const col = collection(this.firestore, 'waiting_passengers');
+    const q = query(col, where('deviceId', '==', deviceId));
+    const snap = await getDocs(q);
+    const now = new Date().getTime();
+    for (const d of snap.docs) {
+      const data = d.data() as WaitingPassenger;
+      if (data.expiresAt && data.expiresAt.toMillis() > now) {
+        return { ...data, id: d.id };
+      }
+    }
+    return null;
   }
 }

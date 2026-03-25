@@ -5,21 +5,21 @@ import {
   EventManager,
   EventManagerPlugin,
   SharedStylesHost
-} from "./chunk-YHTU74OZ.js";
+} from "./chunk-YKWW6M27.js";
 import {
   withHttpTransferCache
-} from "./chunk-TTY6QEFH.js";
+} from "./chunk-UZDGYYUL.js";
 import {
   CommonModule,
   PLATFORM_BROWSER_ID
-} from "./chunk-IQTXIF6N.js";
+} from "./chunk-DSYEWBD4.js";
 import {
   DomAdapter,
   XhrFactory,
   getDOM,
   parseCookieValue,
   setRootDomAdapter
-} from "./chunk-N5ZQZYCK.js";
+} from "./chunk-IYIMPM6Z.js";
 import {
   ApplicationModule,
   ApplicationRef,
@@ -1057,4 +1057,4 @@ export {
   provideClientHydration,
   VERSION
 };
-//# sourceMappingURL=chunk-YVSYIGWY.js.map
+//# sourceMappingURL=chunk-6EWDD32M.js.map

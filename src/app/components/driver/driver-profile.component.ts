@@ -28,6 +28,7 @@ export class DriverProfileComponent {
     this.ratings().some(r => r.deviceId === this.authService.currentDeviceId)
   );
   readonly submitting = signal(false);
+  readonly showValidation = signal(false);
   readonly myRating = signal(0);
   readonly myComment = signal('');
   readonly isPassenger = computed(() => this.roleService.isPassenger());
@@ -77,7 +78,10 @@ export class DriverProfileComponent {
   }
 
   async submitRating(): Promise<void> {
-    if (this.myRating() === 0) return;
+    if (this.myRating() === 0) {
+      this.showValidation.set(true);
+      return;
+    }
     this.submitting.set(true);
     try {
       await this.ratingsService.rateDriver(

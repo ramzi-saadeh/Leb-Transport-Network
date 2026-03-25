@@ -29,6 +29,7 @@ export class ReviewByPlateComponent {
 
   submitting = signal(false);
   submitted = signal(false);
+  showValidation = signal(false);
   existingRatings = signal<any[]>([]);
   routes = signal<Route[]>([]);
 
@@ -72,7 +73,10 @@ export class ReviewByPlateComponent {
   }
 
   async submitReview() {
-    if (!this.plateNumber || this.rating === 0) return;
+    if (!this.plateNumber || this.rating === 0) {
+      this.showValidation.set(true);
+      return;
+    }
     this.submitting.set(true);
 
     try {

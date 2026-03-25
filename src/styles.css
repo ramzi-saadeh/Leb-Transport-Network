@@ -428,3 +428,8 @@ select.form-input {
 }
 
 .p-lg   { padding: var(--space-lg);  }
+/* Global keyframe used by Leaflet divIcon markers (outside Angular component scope) */
+@keyframes bounce {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-5px); }
+}

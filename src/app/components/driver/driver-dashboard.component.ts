@@ -18,6 +18,7 @@ import { WaitingPassengersService } from '../../services/waiting-passengers.serv
 import { RoutesService } from '../../services/routes.service';
 import { RatingsService } from '../../services/ratings.service';
 import { DriversService } from '../../services/drivers.service';
+import { DriverLocationService } from '../../services/driver-location.service';
 import { WaitingPassenger } from '../../models/waiting-passenger.model';
 import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
 import * as L from 'leaflet';
@@ -146,6 +147,20 @@ export class DriverDashboardComponent implements AfterViewInit, OnDestroy {
         });
       }
     });
+
+    // Start / stop location sharing when duty status changes
+    effect(() => {
+      const isActive = this.driverIsActive();
+      const profile = this.roleService.driverProfile();
+      const routeId = this.selectedRouteId() ?? profile?.routeId;
+      if (isActive && profile?.id && routeId) {
+        this.driverLocationService.startSharing(profile.id, routeId);
+      } else {
+        this.driverLocationService.stopSharing();
+      }
+    });
+
+
   }
   markers: L.Marker[] = [];
   private readonly roleService = inject(RoleService);
@@ -153,6 +168,7 @@ export class DriverDashboardComponent implements AfterViewInit, OnDestroy {
   private readonly waitingService = inject(WaitingPassengersService);
   private readonly ratingsService = inject(RatingsService);
   private readonly driversService = inject(DriversService);
+  private readonly driverLocationService = inject(DriverLocationService);
   private readonly router = inject(Router);
   private readonly location = inject(Location);
   private readonly mapSignal = signal<L.Map | null>(null);
@@ -179,9 +195,18 @@ export class DriverDashboardComponent implements AfterViewInit, OnDestroy {
     this.clearMarkers();
     passengers.forEach((p) => {
       const icon = L.divIcon({
-        html: `<div style="background:#F5A623;color:#000;font-weight:800;font-size:14px;padding:8px 14px;border-radius:99px;box-shadow:0 4px 16px rgba(245,166,35,0.5);border:2px solid white;">✋ ${p.count}</div>`,
+        html: `<div style="
+          position:relative;
+          width:48px;height:48px;border-radius:50%;
+          background:#0D7A4E;border:3px solid #34D399;
+          box-shadow:0 4px 14px rgba(0,0,0,0.55),0 0 0 4px rgba(52,211,153,0.25);
+          display:flex;align-items:center;justify-content:center;
+          animation:bounce 1s ease-in-out infinite alternate;">
+          <span style="font-size:20px;line-height:1;">✋</span>
+          <span style="position:absolute;top:-6px;right:-6px;background:#34D399;color:#0D3B2A;font-size:11px;font-weight:800;min-width:18px;height:18px;border-radius:99px;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid #fff;">${p.count}</span>
+        </div>`,
         className: '',
-        iconAnchor: [30, 20],
+        iconAnchor: [24, 24],
       });
       const marker = L.marker([p.location.lat, p.location.lng], { icon })
         .addTo(map)
@@ -226,6 +251,7 @@ export class DriverDashboardComponent implements AfterViewInit, OnDestroy {
     if (this.sub) this.sub.unsubscribe();
     if (this.resSub) this.resSub.unsubscribe();
     if (this.driverSub) this.driverSub.unsubscribe();
+    this.driverLocationService.stopSharing();
     this.mapSignal()?.remove();
   }
 }

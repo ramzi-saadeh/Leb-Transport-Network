@@ -8,21 +8,24 @@ import { provideTranslateHttpLoader, TranslateHttpLoader } from '@ngx-translate/
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+import { provideDatabase, getDatabase } from '@angular/fire/database';
 
 // Factory function required by TranslateModule
 export function HttpLoaderFactory() {
   return new TranslateHttpLoader();
 }
 
-
 const firebaseConfig = {
-  apiKey: "AIzaSyA2qm5RvKvYEv38tr2e8JOItlmsWGU7pkg",
-  authDomain: "leb-bus.firebaseapp.com",
-  projectId: "leb-bus",
-  storageBucket: "leb-bus.firebasestorage.app",
-  messagingSenderId: "913055164085",
-  appId: "1:913055164085:web:51f3fc6d24a0f2bdcf80fc",
-  measurementId: "G-7F6T631LC8"
+  apiKey: 'AIzaSyA2qm5RvKvYEv38tr2e8JOItlmsWGU7pkg',
+  authDomain: 'leb-bus.firebaseapp.com',
+  projectId: 'leb-bus',
+  storageBucket: 'leb-bus.firebasestorage.app',
+  messagingSenderId: '913055164085',
+  appId: '1:913055164085:web:51f3fc6d24a0f2bdcf80fc',
+  measurementId: 'G-7F6T631LC8',
+  // Realtime Database — enable RTDB in Firebase Console first:
+  // https://console.firebase.google.com/project/leb-bus/database
+  databaseURL: 'https://leb-bus-default-rtdb.europe-west1.firebasedatabase.app',
 };
 
 export const appConfig: ApplicationConfig = {
@@ -33,6 +36,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(),
     provideFirebaseApp(() => initializeApp(firebaseConfig)),
     provideFirestore(() => getFirestore()),
+    provideDatabase(() => getDatabase()),
     provideTranslateService({
       loader: provideTranslateHttpLoader({
         prefix: './i18n/',
@@ -40,6 +44,5 @@ export const appConfig: ApplicationConfig = {
       }),
       fallbackLang: 'en',
     }),
-  ]
+  ],
 };
-

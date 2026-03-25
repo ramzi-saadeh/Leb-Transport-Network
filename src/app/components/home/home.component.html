@@ -114,7 +114,7 @@
 
       @if (totalDrivers() > 0) {
       <div class="fleet-breakdown">
-        <p class="fleet-title">{{ 'STATS.FLEET_BREAKDOWN' | translate }}</p>
+        <p class="fleet-title">{{ 'STATS.VEHICLE_TYPE' | translate }}</p>
         @for (item of fleetBreakdown(); track item.type) {
           <div class="fleet-row">
             <span class="fleet-type">{{ item.typeKey | translate }}</span>

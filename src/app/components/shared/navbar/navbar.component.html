@@ -17,10 +17,18 @@
     </a>
   }
 
-  <a routerLink="/my-route" routerLinkActive="active" class="nav-item">
-    <span class="nav-icon">📍</span>
-    <span class="nav-label">{{ 'MY_ROUTE.TITLE' | translate }}</span>
-  </a>
+  <!-- Passenger: Live Map tab -->
+  @if (isPassenger()) {
+    <a routerLink="/map" routerLinkActive="active" class="nav-item">
+      <span class="nav-icon">🗺️</span>
+      <span class="nav-label">{{ 'SHARED.MAP' | translate }}</span>
+    </a>
+  } @else {
+    <a routerLink="/my-route" routerLinkActive="active" class="nav-item">
+      <span class="nav-icon">📍</span>
+      <span class="nav-label">{{ 'MY_ROUTE.TITLE' | translate }}</span>
+    </a>
+  }
 
   <!-- Driver Only -->
   @if (isDriver()) {

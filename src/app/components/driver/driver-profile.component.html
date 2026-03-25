@@ -78,7 +78,12 @@
         @if (isPassenger() && !hasRated()) {
           <div class="rate-section">
             <h3 style="margin-bottom:12px;">Rate this driver</h3>
-            <app-star-rating [(value)]="myRating" />
+            <div [class.rating-invalid]="showValidation() && myRating() === 0">
+              <app-star-rating [(value)]="myRating" />
+              @if (showValidation() && myRating() === 0) {
+                <span class="field-error">⚠ Please select a star rating</span>
+              }
+            </div>
             <textarea
               class="form-input mt-md"
               rows="3"
@@ -88,7 +93,7 @@
             <button
               class="btn-primary mt-md"
               (click)="submitRating()"
-              [disabled]="myRating() === 0 || submitting()">
+              [disabled]="submitting()">
               {{ submitting() ? 'Submitting…' : 'Submit Rating' }}
             </button>
           </div>

@@ -1,16 +1,18 @@
-import { Component, inject, computed, input, signal, Signal, effect } from '@angular/core';
+import { Component, inject, computed, input, signal, Signal, effect, OnDestroy } from '@angular/core';
 import { toSignal, toObservable } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { RoutesService } from '../../services/routes.service';
 import { DriversService } from '../../services/drivers.service';
+import { DriverLocationService } from '../../services/driver-location.service';
 import { RoleService } from '../../services/role.service';
 import { SEOService } from '../../services/seo.service';
 import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
 import { Location } from '@angular/common';
-import { switchMap, of } from 'rxjs';
+import { switchMap } from 'rxjs';
 import { Route } from '../../models/route.model';
+import { LiveDriverLocationWithId } from '../../models/driver-location.model';
 
 @Component({
   selector: 'app-route-detail',
@@ -18,20 +20,25 @@ import { Route } from '../../models/route.model';
   templateUrl: './route-detail.component.html',
   styleUrl: './route-detail.component.css'
 })
-export class RouteDetailComponent {
+export class RouteDetailComponent implements OnDestroy {
   readonly id = input.required<string>();
   readonly isPassenger = computed(() => this.roleService.isPassenger());
   readonly route: Signal<Route | undefined>;
   readonly drivers: Signal<any[]>;
   readonly driversLoading = signal(false);
   readonly copied = signal(false);
+  readonly liveDrivers = signal<LiveDriverLocationWithId[]>([]);
+  readonly liveCount = computed(() => this.liveDrivers().length);
 
   private readonly roleService = inject(RoleService);
   private readonly routesService = inject(RoutesService);
   private readonly driversService = inject(DriversService);
+  private readonly driverLocationService = inject(DriverLocationService);
   private readonly seoService = inject(SEOService);
   private readonly translate = inject(TranslateService);
   private readonly location = inject(Location);
+
+  private liveSub: any;
 
   goBack() { this.location.back(); }
 
@@ -47,6 +54,15 @@ export class RouteDetailComponent {
       ),
       { initialValue: [] }
     );
+
+    // Subscribe to live RTDB driver locations for this route
+    effect(() => {
+      const routeId = this.id();
+      if (this.liveSub) this.liveSub.unsubscribe();
+      this.liveSub = this.driverLocationService
+        .getActiveDriversOnRoute(routeId)
+        .subscribe(drivers => this.liveDrivers.set(drivers));
+    });
 
     effect(() => {
       const r = this.route();
@@ -65,6 +81,10 @@ export class RouteDetailComponent {
 
   formatPrice(p: number): string {
     return p >= 1000 ? (p / 1000).toFixed(0) + 'k' : p.toString();
+  }
+
+  ngOnDestroy(): void {
+    if (this.liveSub) this.liveSub.unsubscribe();
   }
 
   vehicleLabel(type: string): string {
