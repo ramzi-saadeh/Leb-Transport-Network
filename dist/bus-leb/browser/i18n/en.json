@@ -1,0 +1,178 @@
+{
+  "SHARED": {
+    "DASHBOARD": "Dashboard",
+    "MY_REVIEWS": "My Reviews",
+    "LIVE_MAP": "Live Map",
+    "SEE_ALL": "See all",
+    "HOME": "Home",
+    "ROUTES": "Routes",
+    "MAP": "Map",
+    "DRIVER": "Driver",
+    "BACK": "Back",
+    "LANGUAGE": "Language",
+    "LANG_NAME": "العربية",
+    "SETTINGS": "Settings"
+  },
+  "SETTINGS": {
+    "TITLE": "Settings",
+    "SUBTITLE": "Manage your profile and preferences",
+    "LANGUAGE": "Language",
+    "APPEARANCE": "Appearance",
+    "DARK": "Dark",
+    "LIGHT": "Light",
+    "DRIVER_PROFILE": "Driver Profile",
+    "PASSENGER_PROFILE": "Passenger Profile",
+    "FULL_NAME": "Full Name",
+    "ENTER_NAME": "Enter your name",
+    "PREFERRED_ROUTE": "Preferred Route",
+    "SELECT_ROUTE": "Select your usual route",
+    "PHONE_NUMBER": "Phone Number",
+    "PLATE_NUMBER": "Bus Plate Number",
+    "PRIMARY_ROUTE": "Primary Route (Road Line)",
+    "SAVING": "Saving...",
+    "SAVE_CHANGES": "Save Changes",
+    "SIGN_OUT": "Sign Out / Reset Account",
+    "VEHICLE_TYPE": "Vehicle Type",
+    "SELECT_VEHICLE_TYPE": "— Select vehicle type —"
+  },
+  "VEHICLE_TYPES": {
+    "BUS": "Bus",
+    "MINIBUS": "Minibus",
+    "VAN": "Van",
+    "CAR": "Car"
+  },
+  "STATS": {
+    "TITLE": "Network Overview",
+    "TOTAL_DRIVERS": "Registered Drivers",
+    "ON_DUTY": "On Duty Now",
+    "ROUTES": "Available Routes",
+    "AVG_RATING": "Avg. Network Rating",
+    "FLEET_BREAKDOWN": "Fleet Breakdown"
+  },
+  "DRIVER": {
+    "ON_DUTY": "On Duty",
+    "OFF_DUTY": "Off Duty",
+    "VERIFIED_BADGE": "Trusted",
+    "SHARE": "Share Route",
+    "LINK_COPIED": "Link Copied!"
+  },
+  "HOME": {
+    "TITLE": "Home",
+    "DESC": "Find bus routes, track drivers and explore Lebanon's public transport network.",
+    "WELCOME": "Welcome, {{ name }}",
+    "LEBANON_BUS_NETWORK": "🇱🇧 Lebanon Bus Network",
+    "FIND_YOUR_BUS_RIDE": "Find Your<br><span class=\"text-accent\">Bus Ride</span>",
+    "REAL_TIME_STOPS": "Real-time stops. Flexible routes. Across Lebanon.",
+    "SEARCH_PLACEHOLDER": "Search city or route…",
+    "QUICK_ACTIONS": "Quick Actions",
+    "IM_WAITING": "I'm Waiting",
+    "SIGNAL_YOUR_STOP": "Signal your stop",
+    "REVIEW_BY_PLATE": "Review by Plate",
+    "NO_DRIVER_NAME_NEEDED": "No driver name needed",
+    "SEE_ALL_STOPS": "See all stops",
+    "MANAGE_ROUTE": "Manage route",
+    "SEE_YOUR_RATINGS": "See your ratings",
+    "IM_A_DRIVER": "I'm a Driver",
+    "REGISTER_NOW": "Register now",
+    "INFO_BANNER_TEXT": "Buses in Lebanon stop <strong>anywhere</strong> along the route. Press ✋ to signal where you're waiting!",
+    "POPULAR_ROUTES": "Popular Routes",
+    "NO_ROUTES_FOUND": "No routes found.<br>Try a different search."
+  },
+  "SPLASH": {
+    "TITLE": "Lebanon Bus Guide",
+    "DESC": "Your complete guide to public transport in Lebanon."
+  },
+  "ROLE": {
+    "TITLE": "Select Your Role",
+    "DESC": "Are you a passenger or a driver?"
+  },
+  "ROUTES": {
+    "TITLE": "Bus Routes",
+    "DESC": "Explore all available bus routes across Lebanon."
+  },
+  "MAP": {
+    "TITLE": "Live Bus Map",
+    "DESC": "Track bus locations and find stops in real-time.",
+    "COMING_TITLE": "Live Map Coming Soon",
+    "COMING_SUB": "We're building a real-time map to show you exactly where every bus is and how long until it reaches you.",
+    "COMING_BADGE": "Next Version",
+    "FEAT_LIVE": "Live bus locations on the map",
+    "FEAT_ROUTES": "Full route polylines & stops",
+    "FEAT_WAITING": "See passengers flagging nearby",
+    "FEAT_ETA": "Estimated arrival times"
+  },
+  "DRIVER_REG": {
+    "TITLE": "Driver Registration",
+    "DESC": "Join the Lebanon Bus network as a driver."
+  },
+  "DASHBOARD": {
+    "TITLE": "Driver Dashboard",
+    "DESC": "Manage your bus route and passenger signals."
+  },
+  "WAITING": {
+    "TITLE": "I'm Waiting",
+    "DESC": "Signal your location to bus drivers nearby.",
+    "HEADING": "I'm Waiting",
+    "HEADING_ACCENT": "for a Bus",
+    "SUBTITLE": "Your location will be visible to drivers on your route for 2 hours.",
+    "ROUTE_LABEL": "🚌 Select your route",
+    "ROUTE_PLACEHOLDER": "— Choose route —",
+    "PAX_LABEL": "👥 Number of passengers",
+    "SIGNAL_BTN": "Signal My Location",
+    "SIGNAL_SUB": "Tap to share where you are",
+    "LOCATING": "Getting your location…",
+    "ON_MAP": "You're on the map!",
+    "DRIVERS_CAN_SEE": "Drivers can see you waiting.",
+    "CANCEL": "✕ Cancel",
+    "LOC_ERROR": "Location Error",
+    "TRY_AGAIN": "Try Again",
+    "TIP_DASHBOARD": "Drivers will see you on their dashboard map",
+    "TIP_EXPIRES": "Your pin expires after 2 hours automatically",
+    "TIP_STOP": "Buses can stop anywhere — just wave them down!"
+  },
+  "REVIEW": {
+    "TITLE": "Submit Review",
+    "DESC": "Share your feedback about your bus journey.",
+    "ALREADY_RATED": "You've already reviewed this driver.",
+    "ROUTE_LABEL": "Route Taken",
+    "ROUTE_HINT": "(Optional)",
+    "ROUTE_NONE": "— Not sure / doesn't matter —"
+  },
+  "MY_ROUTE": {
+    "TITLE": "My Route",
+    "SUBTITLE": "Select your cities and we'll find your route.",
+    "FROM_LABEL": "From",
+    "TO_LABEL": "To",
+    "FROM_PLACEHOLDER": "Select departure city",
+    "TO_PLACEHOLDER": "Select destination city",
+    "SELECT_FROM_FIRST": "Select a departure city first",
+    "SAME_CITY_ERROR": "Departure and destination must be different",
+    "SUBMIT": "Find My Route",
+    "SUBMITTING": "Searching...",
+    "FOUND_TITLE": "Route Found!",
+    "FOUND_BTN": "View Route",
+    "NOT_FOUND_TITLE": "Route Not Available Yet",
+    "NOT_FOUND_DESC": "We've saved your request. We'll add this route when there's enough demand from passengers.",
+    "NOT_FOUND_BTN": "Go Back",
+    "QUICK_LABEL": "My Route",
+    "QUICK_SUB": "Plan your trip"
+  },
+  "ONBOARDING": {
+    "PAGE_TITLE": "Welcome to Lebanon Bus",
+    "LANG_TITLE": "Choose Your Language",
+    "LANG_SUB": "You can change this anytime in Settings.",
+    "THEME_TITLE": "Choose Your Theme",
+    "THEME_SUB": "Pick the look that feels right for you.",
+    "ROLE_TITLE": "How will you use the app?",
+    "ROLE_SUB": "You can change this anytime in Settings.",
+    "ROLE_PASSENGER": "I'm a Passenger",
+    "ROLE_PASSENGER_DESC": "Find routes, signal drivers, leave reviews.",
+    "ROLE_DRIVER": "I'm a Driver",
+    "ROLE_DRIVER_DESC": "Manage your route and see waiting passengers.",
+    "ROUTE_TITLE": "Your Usual Route?",
+    "ROUTE_SUB": "Optional — pick your most frequent route for quick access.",
+    "ROUTE_SKIP": "Skip for now",
+    "NEXT": "Continue",
+    "LETS_GO": "Let's Go"
+  }
+}

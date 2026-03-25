@@ -1,0 +1,110 @@
+<div class="page-container">
+  <div class="page-scroll">
+    <button class="btn-ghost back-floating" (click)="goBack()">← Back</button>
+
+    @if (driver()) {
+      <!-- Hero photo -->
+      <div class="profile-hero">
+        <div class="photo-wrap">
+          @if (driver()!.photoUrl) {
+            <img [src]="driver()!.photoUrl" [alt]="driver()!.name" class="profile-photo" />
+          } @else {
+            <div class="profile-photo photo-placeholder">🧑‍✈️</div>
+          }
+          <div class="status-badge" [class.online]="driver()!.isActive">
+            {{ driver()!.isActive ? '● Online' : '○ Offline' }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div class="profile-body">
+        <h1 class="driver-name">{{ driver()!.name }}</h1>
+        @if (driver()!.nameAr) {
+          <p class="driver-name-ar">{{ driver()!.nameAr }}</p>
+        }
+        @if (driver()!.ratingCount >= 5 && driver()!.rating >= 4.0) {
+          <span class="verified-badge">✓ Trusted</span>
+        }
+
+        <div class="rating-row">
+          <app-star-rating [value]="driver()!.rating" [readonly]="true" />
+          <span class="rating-val">{{ driver()!.rating.toFixed(1) }}</span>
+          <span class="text-muted">({{ driver()!.ratingCount }} ratings)</span>
+        </div>
+
+        <!-- Stats chips -->
+        <div class="chips-row">
+          <span class="chip">{{ vehicleLabel(driver()!.vehicleType) }}</span>
+          @if (driver()!.plateNumber) {
+            <span class="chip">🔢 {{ driver()!.plateNumber }}</span>
+          }
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Contact -->
+        <a [href]="'tel:' + driver()!.phone" class="contact-btn">
+          📞 Call {{ driver()!.phone }}
+        </a>
+
+        <div class="divider"></div>
+
+        <!-- Reviews List -->
+        <div class="reviews-section">
+          <h3 style="margin-bottom:16px;">Passenger Reviews</h3>
+          @if (ratings().length === 0) {
+            <p class="text-muted" style="font-size:14px;">No reviews yet.</p>
+          } @else {
+            <div class="reviews-list">
+              @for (r of ratings(); track r.id) {
+                <div class="review-item bus-card" style="margin-bottom:12px; cursor:default; transform:none; box-shadow:none;">
+                  <div class="flex justify-between items-center" style="margin-bottom:8px;">
+                    <app-star-rating [value]="r.rating" [readonly]="true" />
+                    <span class="text-muted" style="font-size:11px;">{{ r.createdAt?.toDate() | date:'shortDate' }}</span>
+                  </div>
+                  @if (r.comment) {
+                    <p style="font-size:14px; color: var(--text-primary); margin:0;">"{{ r.comment }}"</p>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Rate this driver -->
+        @if (isPassenger() && !hasRated()) {
+          <div class="rate-section">
+            <h3 style="margin-bottom:12px;">Rate this driver</h3>
+            <app-star-rating [(value)]="myRating" />
+            <textarea
+              class="form-input mt-md"
+              rows="3"
+              placeholder="Leave a comment (optional)…"
+              [(ngModel)]="myComment"
+              style="resize:none;"></textarea>
+            <button
+              class="btn-primary mt-md"
+              (click)="submitRating()"
+              [disabled]="myRating() === 0 || submitting()">
+              {{ submitting() ? 'Submitting…' : 'Submit Rating' }}
+            </button>
+          </div>
+        } @else if (isPassenger() && hasRated()) {
+          <div class="rated-banner">
+            <span>⭐</span>
+            <p style="margin:0; font-size:14px;">Thanks for your rating!</p>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="p-lg">
+        <div class="skeleton" style="height:160px; border-radius:16px;"></div>
+        <div class="skeleton" style="height:28px; width:50%; margin-top:16px;"></div>
+        <div class="skeleton" style="height:20px; width:70%; margin-top:8px;"></div>
+      </div>
+    }
+  </div>
+</div>

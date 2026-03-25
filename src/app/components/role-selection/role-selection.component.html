@@ -1,0 +1,30 @@
+<div class="selection-container">
+  <div class="selection-content">
+    <div class="header-section">
+      <h1 class="title">Welcome to <span class="text-accent">Bus Leb</span></h1>
+      <p class="subtitle">Please select how you want to use the app</p>
+    </div>
+
+    <div class="cards-grid">
+      <button class="selection-card passenger-card" (click)="selectPassenger()">
+        <div class="card-icon">🚶‍♂️</div>
+        <div class="card-info">
+          <h2 class="card-title">I'm a Passenger</h2>
+          <p class="card-desc">Find routes, check stops, and signal drivers.</p>
+        </div>
+        <div class="card-arrow">→</div>
+      </button>
+
+      <button class="selection-card driver-card" (click)="selectDriver()">
+        <div class="card-icon">🚌</div>
+        <div class="card-info">
+          <h2 class="card-title">I'm a Driver</h2>
+          <p class="card-desc">Manage your route, see passengers waiting, and update status.</p>
+        </div>
+        <div class="card-arrow">→</div>
+      </button>
+    </div>
+
+    <p class="footer-note">You can change this anytime in settings.</p>
+  </div>
+</div>

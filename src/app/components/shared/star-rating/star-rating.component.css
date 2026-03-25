@@ -1,0 +1,20 @@
+.stars { display: flex; align-items: center; gap: 2px; }
+
+.star-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color 0.15s, transform 0.1s;
+  padding: 2px;
+  line-height: 1;
+}
+
+.star-btn:not([disabled]):hover { transform: scale(1.15); }
+
+.star-btn.filled { color: var(--accent); }
+
+.star-btn[disabled] { cursor: default; font-size: 18px; }
+
+.rating-count { font-size: 12px; color: var(--text-secondary); margin-left: 4px; }

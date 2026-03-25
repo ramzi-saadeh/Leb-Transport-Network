@@ -1,0 +1,52 @@
+.detail-header {
+  padding: 20px;
+  background: var(--bg-secondary);
+}
+
+.lang-options {
+  display: flex;
+  gap: 12px;
+}
+
+.lang-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.lang-btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--text-muted);
+}
+
+.lang-btn.active {
+  background: var(--accent-glow);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.flag {
+  font-size: 24px;
+}
+
+.success-alert {
+  color: var(--success);
+  font-weight: 600;
+  text-align: center;
+}
+
+.error-alert {
+  color: var(--danger);
+  font-weight: 600;
+  text-align: center;
+}

@@ -1,0 +1,147 @@
+<div class="page-container">
+  <div class="page-scroll">
+    <!-- Header -->
+    <div class="detail-header" [style.border-bottom-color]="route()?.color || 'var(--accent)'">
+      <button class="btn-ghost back-btn" (click)="goBack()">← Back</button>
+      @if (route()) {
+        <div class="route-color-dot" [style.background]="route()!.color || 'var(--accent)'"></div>
+        <h1>{{ route()!.name }}</h1>
+        <p class="text-muted" style="font-family: Tajawal, sans-serif; margin-top: 4px">
+          {{ route()!.nameAr }}
+        </p>
+      } @else {
+        <div class="skeleton" style="height: 32px; width: 60%; margin-top: 12px"></div>
+      }
+    </div>
+
+    @if (route()) {
+      <!-- Stats -->
+      <div class="stats-row p-lg">
+        <!-- <div class="stat-card">
+          <span class="stat-icon">💰</span>
+          <span class="stat-value">{{ formatPrice(route()!.priceMin) }}–{{ formatPrice(route()!.priceMax) }}</span>
+          <span class="stat-label">LBP</span>
+        </div> -->
+        <div class="stat-card">
+          <span class="stat-icon">🕐</span>
+          <span class="stat-value">{{ route()!.frequencyLabel }}</span>
+          <span class="stat-label">Frequency</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-icon">📍</span>
+          <span class="stat-value">Flexible</span>
+          <span class="stat-label">Stops</span>
+        </div>
+      </div>
+
+      <!-- Flexible stops notice -->
+      @if (isPassenger()) {
+        <div class="p-lg" style="padding-top: 0">
+          <div class="flex-stops-notice">
+            <span>📍</span>
+            <p style="margin: 0; font-size: 13px; color: var(--text-secondary)">
+              Buses on this route
+              <strong style="color: var(--text-primary)">may stop anywhere</strong> along the road.
+              Press ✋ "I'm Waiting" to signal your location to the driver.
+            </p>
+          </div>
+        </div>
+      }
+
+      <!-- Action buttons -->
+      <div class="p-lg" style="padding-top: 0; display: flex; gap: 10px; flex-wrap: wrap">
+        @if (isPassenger()) {
+          <a
+            [routerLink]="['/waiting']"
+            [queryParams]="{ routeId: route()!.id }"
+            class="btn-primary"
+            style="flex: 1; text-decoration: none"
+          >
+            ✋ I'm Waiting
+          </a>
+          <a
+            routerLink="/review-by-plate"
+            class="btn-secondary"
+            style="flex: 1; text-decoration: none"
+          >
+            📝 Review Plate
+          </a>
+        }
+        <!-- <a routerLink="/map" class="btn-secondary" style="text-decoration:none;">
+          🗺️ Map
+        </a> -->
+        <button class="btn-secondary" (click)="shareRoute()" style="min-width: 80px">
+          {{ copied() ? ('DRIVER.LINK_COPIED' | translate) : ('DRIVER.SHARE' | translate) }}
+        </button>
+      </div>
+
+      <!-- Drivers on this route -->
+      <div class="p-lg" style="padding-top: 0">
+        <div class="section-header">
+          <h2>Drivers on this Route</h2>
+        </div>
+
+        @if (driversLoading()) {
+          <div class="skeleton" style="height: 70px; margin-bottom: 10px"></div>
+          <div class="skeleton" style="height: 70px"></div>
+        }
+
+        @for (driver of drivers(); track driver.id) {
+          <a [routerLink]="['/drivers', driver.id]" class="driver-row bus-card">
+            <div class="driver-avatar">
+              @if (driver.photoUrl) {
+                <img [src]="driver.photoUrl" [alt]="driver.name" class="avatar" />
+              } @else {
+                <div class="avatar avatar-placeholder">🧑‍✈️</div>
+              }
+              <div class="active-dot" [class.online]="driver.isActive"></div>
+            </div>
+            <div class="driver-info">
+              <div class="driver-name">
+                {{ driver.name }}
+                @if (driver.ratingCount >= 5 && driver.rating >= 4.0) {
+                  <span
+                    class="verified-badge"
+                    style="font-size: 11px; vertical-align: middle; margin-inline-start: 6px"
+                    >✓ Trusted</span
+                  >
+                }
+              </div>
+              <div class="driver-vehicle">{{ vehicleLabel(driver.vehicleType) }}</div>
+              <app-star-rating
+                [value]="driver.rating"
+                [readonly]="true"
+                [showCount]="true"
+                [count]="driver.ratingCount"
+              />
+            </div>
+            <span style="color: var(--text-muted); font-size: 18px">›</span>
+          </a>
+        }
+
+        @if (!driversLoading() && drivers().length === 0) {
+          <div class="empty-state">
+            <div style="font-size: 40px">🚌</div>
+            <p>No drivers registered yet.</p>
+            @if (!isPassenger()) {
+              <p>Be the first to register!</p>
+              <a
+                routerLink="/driver/register"
+                class="btn-primary"
+                style="
+                  margin-top: 16px;
+                  text-decoration: none;
+                  display: inline-flex;
+                  width: auto;
+                  padding: 12px 24px;
+                "
+              >
+                Register as Driver
+              </a>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

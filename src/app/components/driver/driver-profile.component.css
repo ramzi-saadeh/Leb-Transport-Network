@@ -1,0 +1,129 @@
+:host {
+  display: block;
+}
+
+.back-floating {
+  position: absolute;
+  top: 56px;
+  left: 16px;
+  z-index: 10;
+}
+
+.profile-hero {
+  background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  background: var(--bg-secondary);
+}
+
+.photo-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-photo {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--accent);
+}
+
+.photo-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-input);
+  font-size: 40px;
+}
+
+.status-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.status-badge.online {
+  color: var(--success);
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.profile-body {
+  padding: 20px 20px 32px;
+}
+
+.driver-name {
+  font-size: 26px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.driver-name-ar {
+  font-family: 'Tajawal', sans-serif;
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.rating-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.rating-val {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.contact-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 14px;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--success);
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.contact-btn:hover {
+  background: rgba(34, 197, 94, 0.18);
+}
+
+.rate-section {
+  padding-top: 4px;
+}
+
+.rated-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(245, 166, 35, 0.08);
+  border: 1px solid rgba(245, 166, 35, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 18px;
+}

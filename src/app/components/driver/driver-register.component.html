@@ -1,0 +1,105 @@
+<div class="page-container">
+  <div class="page-scroll">
+    <div class="reg-header">
+      <button class="btn-ghost" (click)="goBack()">← Back</button>
+      <h1 style="margin-top: 16px">Register as<br /><span class="text-accent">a Driver</span></h1>
+      <p class="text-muted" style="margin-top: 8px; font-size: 14px">
+        Join the Lebanon Bus Network. Passengers will find you on their route.
+      </p>
+    </div>
+
+    @if (formState() === 'success') {
+      <div class="success-screen">
+        <span style="font-size: 64px">✅</span>
+        <h2 style="margin: 16px 0 8px">You're registered!</h2>
+        <p class="text-muted">Passengers on your route can now see your profile.</p>
+        <a
+          routerLink="/"
+          class="btn-primary mt-lg"
+          style="text-decoration: none; display: inline-flex; width: auto; padding: 14px 32px"
+        >
+          Go to Home
+        </a>
+      </div>
+    } @else {
+      <form class="reg-form" (ngSubmit)="submit()">
+        <div class="form-group">
+          <label class="form-label">Full Name *</label>
+          <input
+            class="form-input"
+            type="text"
+            [(ngModel)]="name"
+            name="name"
+            placeholder="e.g. Ahmad Khalil"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Phone Number *</label>
+          <input
+            class="form-input"
+            type="tel"
+            [(ngModel)]="phone"
+            name="phone"
+            placeholder="+961 XX XXX XXX"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Route *</label>
+          <select class="form-input" [(ngModel)]="routeId" name="routeId" required>
+            <option value="">— Select your route —</option>
+            @for (r of routes(); track r.id) {
+              <option [value]="r.id">{{ r.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Plate Number *</label>
+          <input
+            class="form-input"
+            type="text"
+            [(ngModel)]="plateNumber"
+            name="plateNumber"
+            placeholder="e.g. 123456 N"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">{{ 'SETTINGS.VEHICLE_TYPE' | translate }} *</label>
+          <select class="form-input" [(ngModel)]="vehicleType" name="vehicleType" required>
+            <option value="">{{ 'SETTINGS.SELECT_VEHICLE_TYPE' | translate }}</option>
+            <option value="bus">{{ 'VEHICLE_TYPES.BUS' | translate }}</option>
+            <option value="minibus">{{ 'VEHICLE_TYPES.MINIBUS' | translate }}</option>
+            <option value="van">{{ 'VEHICLE_TYPES.VAN' | translate }}</option>
+            <option value="car">{{ 'VEHICLE_TYPES.CAR' | translate }}</option>
+          </select>
+        </div>
+
+        @if (errorMsg()) {
+          <div class="error-banner">⚠️ {{ errorMsg() }}</div>
+        }
+
+        <button
+          type="submit"
+          class="btn-primary mt-md"
+          [disabled]="!isFormValid() || formState() === 'submitting'"
+        >
+          @if (formState() === 'submitting') {
+            ⏳ Registering…
+          } @else {
+            🚗 Register Now
+          }
+        </button>
+
+        <p class="disclaimer">
+          By registering, passengers will be able to see your name, vehicle type, and phone number.
+        </p>
+      </form>
+    }
+  </div>
+</div>

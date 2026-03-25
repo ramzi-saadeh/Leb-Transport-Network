@@ -1,0 +1,202 @@
+<div class="page-container">
+  <div class="page-scroll">
+    <div class="detail-header">
+      <a routerLink="/home" class="btn-ghost back-btn">← {{ 'SHARED.HOME' | translate }}</a>
+      <h1>{{ 'SETTINGS.TITLE' | translate }}</h1>
+      <p class="text-muted">{{ 'SETTINGS.SUBTITLE' | translate }}</p>
+    </div>
+
+    <div class="p-lg">
+      <!-- Language Section -->
+      <div class="section-header">
+        <h2>{{ 'SETTINGS.LANGUAGE' | translate }}</h2>
+      </div>
+      <div class="bus-card p-md">
+        <div class="lang-options">
+          <button
+            class="lang-btn"
+            [class.active]="currentLang() === 'en'"
+            (click)="setLanguage('en')"
+          >
+            <span class="flag">🇺🇸</span> English
+          </button>
+          <button
+            class="lang-btn"
+            [class.active]="currentLang() === 'ar'"
+            (click)="setLanguage('ar')"
+          >
+            <span class="flag">🇱🇧</span> العربية
+          </button>
+        </div>
+      </div>
+
+      <!-- Appearance Section -->
+      <div class="section-header mt-xl">
+        <h2>{{ 'SETTINGS.APPEARANCE' | translate }}</h2>
+      </div>
+      <div class="bus-card p-md">
+        <div class="lang-options">
+          <button
+            class="lang-btn"
+            [class.active]="currentTheme() === 'dark'"
+            (click)="setTheme('dark')"
+          >
+            <span class="flag">🌙</span> {{ 'SETTINGS.DARK' | translate }}
+          </button>
+          <button
+            class="lang-btn"
+            [class.active]="currentTheme() === 'light'"
+            (click)="setTheme('light')"
+          >
+            <span class="flag">☀️</span> {{ 'SETTINGS.LIGHT' | translate }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Passenger Settings (Conditional) -->
+      @if (isPassenger()) {
+        <div class="section-header mt-xl">
+          <h2>{{ 'SETTINGS.PASSENGER_PROFILE' | translate }}</h2>
+        </div>
+        <div class="bus-card p-md">
+          <div class="form-group">
+            <label class="form-label">{{ 'SETTINGS.FULL_NAME' | translate }}</label>
+            <input
+              type="text"
+              class="form-input"
+              [ngModel]="passengerName()"
+              (ngModelChange)="passengerName.set($event)"
+              [placeholder]="'SETTINGS.ENTER_NAME' | translate"
+            />
+          </div>
+
+          <div class="form-group mt-md">
+            <label class="form-label">{{ 'SETTINGS.PREFERRED_ROUTE' | translate }}</label>
+            <select
+              class="form-input"
+              [ngModel]="passengerRouteId()"
+              (ngModelChange)="passengerRouteId.set($event)"
+            >
+              <option value="">{{ 'SETTINGS.SELECT_ROUTE' | translate }}</option>
+              @for (r of routes(); track r.id) {
+                <option [value]="r.id">{{ currentLang() === 'ar' ? r.nameAr : r.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="mt-lg">
+            <button
+              class="btn-primary"
+              (click)="savePassengerSettings()"
+              [disabled]="isSubmittingPassenger()"
+            >
+              {{
+                isSubmittingPassenger()
+                  ? ('SETTINGS.SAVING' | translate)
+                  : ('SETTINGS.SAVE_CHANGES' | translate)
+              }}
+            </button>
+
+            @if (passengerSuccessMsg()) {
+              <div class="success-alert mt-md">{{ passengerSuccessMsg() }}</div>
+            }
+            @if (passengerErrorMsg()) {
+              <div class="error-alert mt-md">{{ passengerErrorMsg() }}</div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Driver Settings (Conditional) -->
+      @if (isDriver()) {
+        <div class="section-header mt-xl">
+          <h2>{{ 'SETTINGS.DRIVER_PROFILE' | translate }}</h2>
+        </div>
+        <div class="bus-card p-md">
+          <div class="form-group">
+            <label class="form-label">{{ 'SETTINGS.FULL_NAME' | translate }}</label>
+            <input
+              type="text"
+              class="form-input"
+              [ngModel]="name()"
+              (ngModelChange)="name.set($event)"
+              [placeholder]="'SETTINGS.ENTER_NAME' | translate"
+            />
+          </div>
+
+          <div class="form-group mt-md">
+            <label class="form-label">{{ 'SETTINGS.PHONE_NUMBER' | translate }}</label>
+            <input
+              type="tel"
+              class="form-input"
+              [ngModel]="phone()"
+              (ngModelChange)="phone.set($event)"
+              placeholder="70 123 456"
+            />
+          </div>
+
+          <div class="form-group mt-md">
+            <label class="form-label">{{ 'SETTINGS.PLATE_NUMBER' | translate }}</label>
+            <input
+              type="text"
+              class="form-input"
+              [ngModel]="plateNumber()"
+              (ngModelChange)="plateNumber.set($event)"
+              placeholder="G 123456"
+            />
+          </div>
+
+          <div class="form-group mt-md">
+            <label class="form-label">{{ 'SETTINGS.PRIMARY_ROUTE' | translate }}</label>
+            <select class="form-input" [ngModel]="routeId()" (ngModelChange)="routeId.set($event)">
+              @for (r of routes(); track r.id) {
+                <option [value]="r.id">{{ r.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="form-group mt-md">
+            <label class="form-label">{{ 'SETTINGS.VEHICLE_TYPE' | translate }}</label>
+            <select
+              class="form-input"
+              [ngModel]="vehicleType()"
+              (ngModelChange)="vehicleType.set($event)"
+            >
+              <option value="bus">{{ 'VEHICLE_TYPES.BUS' | translate }}</option>
+              <option value="minibus">{{ 'VEHICLE_TYPES.MINIBUS' | translate }}</option>
+              <option value="van">{{ 'VEHICLE_TYPES.VAN' | translate }}</option>
+              <option value="car">{{ 'VEHICLE_TYPES.CAR' | translate }}</option>
+            </select>
+          </div>
+
+          <div class="mt-lg">
+            <button class="btn-primary" (click)="saveDriverSettings()" [disabled]="isSubmitting()">
+              {{
+                isSubmitting()
+                  ? ('SETTINGS.SAVING' | translate)
+                  : ('SETTINGS.SAVE_CHANGES' | translate)
+              }}
+            </button>
+
+            @if (successMsg()) {
+              <div class="success-alert mt-md">{{ successMsg() }}</div>
+            }
+            @if (errorMsg()) {
+              <div class="error-alert mt-md">{{ errorMsg() }}</div>
+            }
+          </div>
+        </div>
+      }
+
+      <div class="mt-xl text-center">
+        @if (isRegistered()) {
+          <button class="btn-ghost text-danger" (click)="logout()">
+            {{ 'SETTINGS.SIGN_OUT' | translate }}
+          </button>
+        } @else {
+          <p class="text-muted" style="font-size: 14px">BusLeb v1.0.0</p>
+        }
+      </div>
+    </div>
+  </div>
+</div>

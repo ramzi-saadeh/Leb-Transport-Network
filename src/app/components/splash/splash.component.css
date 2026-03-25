@@ -1,0 +1,62 @@
+.splash-container {
+  height: 100vh;
+  width: 100vw;
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+}
+
+.logo-wrap {
+  text-align: center;
+  animation: fadeInDown 0.8s ease-out;
+}
+
+.logo-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+}
+
+.logo-text {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.logo-tagline {
+  color: var(--accent);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.loader-dots {
+  display: flex;
+  gap: 8px;
+  margin-top: 40px;
+}
+
+.loader-dots span {
+  width: 10px;
+  height: 10px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: bounce 0.6s infinite alternate;
+}
+
+.loader-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loader-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bounce {
+  to { transform: translateY(-10px); opacity: 0.6; }
+}

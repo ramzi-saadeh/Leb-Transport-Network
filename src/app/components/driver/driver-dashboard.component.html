@@ -1,0 +1,70 @@
+<div class="page-container" style="padding-bottom:0">
+  <div #dashMap id="dash-map"></div>
+
+  <!-- Floating header -->
+  <div class="dash-header">
+    <button class="btn-ghost" style="background: var(--bg-card); border: 1px solid var(--border);" (click)="goBack()">← {{ 'SHARED.HOME' | translate }}</button>
+    <div class="dash-title">{{ 'SHARED.DASHBOARD' | translate }}</div>
+  </div>
+
+  <!-- Stats bar -->
+  <div class="dash-stats">
+    <div class="stat-pill">
+      <span class="text-accent" style="font-weight:800;">{{ waitingTotal() }}</span>
+      <span class="text-muted" style="font-size:12px;"> passengers</span>
+    </div>
+    <div class="stat-pill">
+      <span class="text-accent" style="font-weight:800;">{{ markers.length }}</span>
+      <span class="text-muted" style="font-size:12px;"> locations</span>
+    </div>
+    <div class="stat-pill" style="margin-inline-start:auto;">
+      <button class="duty-toggle" [class.on-duty]="driverIsActive()" (click)="toggleDutyStatus()">
+        {{ driverIsActive() ? ('DRIVER.ON_DUTY' | translate) : ('DRIVER.OFF_DUTY' | translate) }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Route filter - Only show if not a specific registered route -->
+  @if (!driverRouteId()) {
+  <div class="route-pills">
+    <button class="pill" [class.active]="!selectedRouteId()" (click)="filterRoute(null)">All Routes</button>
+    @for (r of routes(); track r.id) {
+    <button class="pill" [class.active]="selectedRouteId() === r.id"
+      [style.border-color]="selectedRouteId() === r.id ? (r.color || 'var(--accent)') : 'var(--border)'"
+      (click)="filterRoute(r.id!)">
+      <span class="dot" [style.background]="r.color"></span>
+      {{ r.name }}
+    </button>
+    }
+  </div>
+  } @else {
+  <!-- Just show the assigned route name in the header or somewhere -->
+  <div class="dash-footer-info">
+    @for (r of routes(); track r.id) {
+    @if (r.id === selectedRouteId()) {
+    <div class="active-route-pill" [style.border-color]="r.color">
+      <span class="dot" [style.background]="r.color"></span>
+      {{ r.name }}
+    </div>
+    }
+    }
+
+    @if (ratings().length > 0) {
+    <div class="reviews-drawer">
+      <h3>Recent Reviews</h3>
+      @for (r of ratings(); track r.id) {
+      <div class="review-mini-card">
+        <div class="flex justify-between items-center" style="margin-bottom:4px;">
+          <app-star-rating [value]="r.rating" [readonly]="true" />
+          <span class="text-muted" style="font-size:10px;">{{ r.createdAt?.toDate() | date:'shortDate' }}</span>
+        </div>
+        @if (r.comment) {
+        <p style="font-size:12px; color: var(--text-primary); margin:0; line-height:1.4;">{{ r.comment }}</p>
+        }
+      </div>
+      }
+    </div>
+    }
+  </div>
+  }
+</div>

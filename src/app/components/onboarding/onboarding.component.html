@@ -1,0 +1,151 @@
+<div class="ob-container" [attr.dir]="selectedLang() === 'ar' ? 'rtl' : 'ltr'">
+
+  <!-- Progress dots -->
+  <div class="ob-progress">
+    @for (s of [0,1,2,3]; track s) {
+      <div class="ob-dot" [class.active]="stepIndex() === s" [class.done]="stepIndex() > s"></div>
+    }
+  </div>
+
+  <!-- ── Step: Language ─────────────────────────── -->
+  @if (currentStep() === 'language') {
+    <div class="ob-step">
+      <div class="ob-icon">🌐</div>
+      <h1 class="ob-title">{{ 'ONBOARDING.LANG_TITLE' | translate }}</h1>
+      <p class="ob-sub">{{ 'ONBOARDING.LANG_SUB' | translate }}</p>
+
+      <div class="ob-options">
+        <button
+          class="ob-option"
+          [class.selected]="selectedLang() === 'en'"
+          (click)="setLang('en')"
+        >
+          <span class="ob-option-flag">🇬🇧</span>
+          <span class="ob-option-label">English</span>
+          @if (selectedLang() === 'en') { <span class="ob-check">✓</span> }
+        </button>
+        <button
+          class="ob-option"
+          [class.selected]="selectedLang() === 'ar'"
+          (click)="setLang('ar')"
+        >
+          <span class="ob-option-flag">🇱🇧</span>
+          <span class="ob-option-label">العربية</span>
+          @if (selectedLang() === 'ar') { <span class="ob-check">✓</span> }
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ── Step: Theme ────────────────────────────── -->
+  @if (currentStep() === 'theme') {
+    <div class="ob-step">
+      <div class="ob-icon">🎨</div>
+      <h1 class="ob-title">{{ 'ONBOARDING.THEME_TITLE' | translate }}</h1>
+      <p class="ob-sub">{{ 'ONBOARDING.THEME_SUB' | translate }}</p>
+
+      <div class="ob-options">
+        <button
+          class="ob-option ob-option--theme"
+          [class.selected]="selectedTheme() === 'dark'"
+          (click)="setTheme('dark')"
+        >
+          <span class="ob-option-flag">🌙</span>
+          <span class="ob-option-label">{{ 'SETTINGS.DARK' | translate }}</span>
+          @if (selectedTheme() === 'dark') { <span class="ob-check">✓</span> }
+        </button>
+        <button
+          class="ob-option ob-option--theme"
+          [class.selected]="selectedTheme() === 'light'"
+          (click)="setTheme('light')"
+        >
+          <span class="ob-option-flag">☀️</span>
+          <span class="ob-option-label">{{ 'SETTINGS.LIGHT' | translate }}</span>
+          @if (selectedTheme() === 'light') { <span class="ob-check">✓</span> }
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ── Step: Role ─────────────────────────────── -->
+  @if (currentStep() === 'role') {
+    <div class="ob-step">
+      <div class="ob-icon">👤</div>
+      <h1 class="ob-title">{{ 'ONBOARDING.ROLE_TITLE' | translate }}</h1>
+      <p class="ob-sub">{{ 'ONBOARDING.ROLE_SUB' | translate }}</p>
+
+      <div class="ob-options ob-options--column">
+        <button
+          class="ob-option ob-option--role"
+          [class.selected]="selectedRole() === 'passenger'"
+          (click)="setRole('passenger')"
+        >
+          <span class="ob-option-flag">🚶‍♂️</span>
+          <div class="ob-option-info">
+            <span class="ob-option-label">{{ 'ONBOARDING.ROLE_PASSENGER' | translate }}</span>
+            <span class="ob-option-desc">{{ 'ONBOARDING.ROLE_PASSENGER_DESC' | translate }}</span>
+          </div>
+          @if (selectedRole() === 'passenger') { <span class="ob-check">✓</span> }
+        </button>
+        <button
+          class="ob-option ob-option--role"
+          [class.selected]="selectedRole() === 'driver'"
+          (click)="setRole('driver')"
+        >
+          <span class="ob-option-flag">🚌</span>
+          <div class="ob-option-info">
+            <span class="ob-option-label">{{ 'ONBOARDING.ROLE_DRIVER' | translate }}</span>
+            <span class="ob-option-desc">{{ 'ONBOARDING.ROLE_DRIVER_DESC' | translate }}</span>
+          </div>
+          @if (selectedRole() === 'driver') { <span class="ob-check">✓</span> }
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ── Step: Preferred Route ──────────────────── -->
+  @if (currentStep() === 'route') {
+    <div class="ob-step">
+      <div class="ob-icon">🚦</div>
+      <h1 class="ob-title">{{ 'ONBOARDING.ROUTE_TITLE' | translate }}</h1>
+      <p class="ob-sub">{{ 'ONBOARDING.ROUTE_SUB' | translate }}</p>
+
+      <div class="ob-route-list">
+        <button
+          class="ob-option ob-option--route"
+          [class.selected]="selectedRouteId() === ''"
+          (click)="selectedRouteId.set('')"
+        >
+          <span class="ob-option-flag">⏭️</span>
+          <span class="ob-option-label">{{ 'ONBOARDING.ROUTE_SKIP' | translate }}</span>
+          @if (selectedRouteId() === '') { <span class="ob-check">✓</span> }
+        </button>
+        @for (r of routes(); track r.id) {
+          <button
+            class="ob-option ob-option--route"
+            [class.selected]="selectedRouteId() === r.id"
+            (click)="selectedRouteId.set(r.id!)"
+          >
+            <span class="ob-route-dot" [style.background]="r.color || 'var(--accent)'"></span>
+            <span class="ob-option-label">{{ routeLabel(r) }}</span>
+            @if (selectedRouteId() === r.id) { <span class="ob-check">✓</span> }
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Next / Finish button -->
+  <button
+    class="ob-next"
+    [disabled]="!canNext()"
+    (click)="next()"
+  >
+    @if (isLast() || currentStep() === 'role') {
+      {{ 'ONBOARDING.LETS_GO' | translate }} 🚀
+    } @else {
+      {{ 'ONBOARDING.NEXT' | translate }} →
+    }
+  </button>
+
+</div>

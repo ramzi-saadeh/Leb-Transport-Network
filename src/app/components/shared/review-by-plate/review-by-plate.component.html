@@ -1,0 +1,139 @@
+<div class="page-container">
+  <div class="page-scroll">
+    <div class="detail-header">
+      <button class="btn-ghost back-btn" (click)="goBack()">← Back</button>
+      <h1>Review by Plate</h1>
+      <p class="text-muted">Enter the bus plate number to leave a review</p>
+    </div>
+
+    <div class="review-container">
+      @if (!submitted()) {
+        <div class="review-card">
+          <div class="form-group margin-bottom-input-group">
+            <label class="form-label">Plate Number</label>
+            <input
+              type="text"
+              class="form-input"
+              placeholder="e.g. G 123456"
+              [(ngModel)]="plateNumber"
+              (input)="onPlateInput()"
+            />
+          </div>
+
+          <div class="form-group margin-bottom-input-group">
+            <label class="form-label">
+              Driver's Full Name
+              <span class="hint-label">(Optional – leave blank if you don't know)</span>
+            </label>
+            <input
+              type="text"
+              class="form-input"
+              placeholder="e.g. Ahmad Khalil"
+              [(ngModel)]="driverName"
+            />
+          </div>
+
+          <div class="form-group margin-bottom-input-group">
+            <label class="form-label">{{ 'SETTINGS.VEHICLE_TYPE' | translate }}</label>
+            <select class="form-input" [(ngModel)]="vehicleType">
+              <option value="bus">{{ 'VEHICLE_TYPES.BUS' | translate }}</option>
+              <option value="minibus">{{ 'VEHICLE_TYPES.MINIBUS' | translate }}</option>
+              <option value="van">{{ 'VEHICLE_TYPES.VAN' | translate }}</option>
+              <option value="car">{{ 'VEHICLE_TYPES.CAR' | translate }}</option>
+            </select>
+          </div>
+
+          @if (existingRatings().length > 0) {
+            <div class="existing-reviews" style="margin-bottom: 24px">
+              <h4 style="margin-bottom: 12px; font-size: 14px; color: var(--text-secondary)">
+                Existing Reviews for this Bus
+              </h4>
+              <div class="reviews-mini-list" style="max-height: 200px; overflow-y: auto">
+                @for (r of existingRatings(); track r.id) {
+                  <div
+                    class="review-mini-card"
+                    style="
+                      background: var(--bg-input);
+                      padding: 12px;
+                      border-radius: 12px;
+                      margin-bottom: 8px;
+                    "
+                  >
+                    <div class="flex justify-between items-center" style="margin-bottom: 4px">
+                      <app-star-rating [value]="r.rating" [readonly]="true" />
+                      <span class="text-muted" style="font-size: 10px">{{
+                        r.createdAt?.toDate() | date: 'shortDate'
+                      }}</span>
+                    </div>
+                    @if (r.comment) {
+                      <p
+                        style="
+                          font-size: 12px;
+                          color: var(--text-primary);
+                          margin: 0;
+                          line-height: 1.4;
+                        "
+                      >
+                        "{{ r.comment }}"
+                      </p>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          @if (alreadyRated()) {
+            <div class="already-rated-notice">⭐ {{ 'REVIEW.ALREADY_RATED' | translate }}</div>
+          } @else {
+            <div class="form-group margin-bottom-input-group">
+              <label class="form-label">
+                {{ 'REVIEW.ROUTE_LABEL' | translate }}
+                <span class="hint-label">{{ 'REVIEW.ROUTE_HINT' | translate }}</span>
+              </label>
+              <select class="form-input" [(ngModel)]="selectedRouteId">
+                <option value="">{{ 'REVIEW.ROUTE_NONE' | translate }}</option>
+                @for (r of routes(); track r.id) {
+                  <option [value]="r.id">{{ r.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="rating-group">
+              <label class="form-label">Your Rating</label>
+              <app-star-rating [(value)]="rating" />
+            </div>
+
+            <div class="form-group comment-group">
+              <label class="form-label">Comment (Optional)</label>
+              <textarea
+                class="form-input"
+                rows="4"
+                placeholder="How was your ride?"
+                [(ngModel)]="comment"
+              ></textarea>
+            </div>
+
+            <button
+              class="btn-primary submit-btn"
+              [disabled]="!plateNumber || rating === 0 || submitting()"
+              (click)="submitReview()"
+            >
+              {{ submitting() ? 'Submitting...' : 'Submit Review' }}
+            </button>
+          }
+          <!-- end @else alreadyRated -->
+        </div>
+      } @else {
+        <div class="success-message">
+          <span class="success-icon">✅</span>
+          <h2>Thank You!</h2>
+          <p>Your review has been submitted successfully.</p>
+          <a routerLink="/home" class="btn-primary mt-lg" style="text-decoration: none"
+            >Back to Home</a
+          >
+        </div>
+      }
+    </div>
+  </div>
+</div>

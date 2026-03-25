@@ -1,0 +1,29 @@
+<div class="page-container">
+  <div class="page-scroll">
+    <div class="page-header">
+      <button class="btn-ghost back-btn" (click)="goBack()">← Back</button>
+      <h1>All Routes</h1>
+      <p class="text-muted" style="margin-top:4px; font-size:13px;">{{ routes().length }} routes available</p>
+    </div>
+
+    <div class="list-body">
+      @if (loading()) {
+        @for (s of [1,2,3,4,5]; track s) {
+          <div class="skeleton" style="height: 85px; margin-bottom: 10px;"></div>
+        }
+      }
+      @for (route of routes(); track route.id) {
+        <app-route-card [route]="route" />
+      }
+    </div>
+
+    <!-- Seed button (dev only) -->
+    <div class="p-lg" style="padding-top:0">
+      @if (routes().length === 0 && !loading()) {
+        <button class="btn-secondary" (click)="seedRoutes()">
+          🌱 Seed Lebanese Routes (first time setup)
+        </button>
+      }
+    </div>
+  </div>
+</div>

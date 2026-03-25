@@ -1,0 +1,11 @@
+:host { display: block; }
+
+.page-header {
+  padding: 20px 24px 20px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+}
+
+.back-btn { margin-bottom: 8px; }
+
+.list-body { padding: 16px; }

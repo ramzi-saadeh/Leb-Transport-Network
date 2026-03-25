@@ -1,0 +1,54 @@
+.detail-header {
+  padding: 20px;
+  background: var(--bg-secondary);
+}
+
+.review-container {
+  padding: var(--space-lg);
+}
+
+.review-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  border: 1px solid var(--border);
+}
+
+.submit-btn {
+  margin-top: var(--space-lg);
+}
+
+.margin-bottom-input-group {
+  margin-bottom: var(--space-md);
+}
+
+.hint-label {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  margin-left: 6px;
+  font-style: italic;
+}
+
+.rating-group {
+  margin-bottom: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.comment-group {
+  margin-bottom: var(--space-lg);
+}
+
+.success-message {
+  text-align: center;
+  padding: var(--space-xl) var(--space-lg);
+}
+
+.success-icon {
+  font-size: 48px;
+  margin-bottom: var(--space-md);
+  display: block;
+}

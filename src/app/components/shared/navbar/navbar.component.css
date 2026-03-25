@@ -1,0 +1,75 @@
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  height: calc(var(--nav-height) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 4px;
+  padding-right: 4px;
+  z-index: 200;
+  backdrop-filter: blur(16px);
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--text-muted);
+  transition: color 0.2s, background 0.2s;
+  flex: 1;
+  cursor: pointer;
+}
+
+.nav-item.active { color: var(--accent); }
+.nav-center-item { padding: 0; }
+.nav-item.active .nav-icon { transform: translateY(-2px); transition: transform 0.2s; }
+
+.nav-icon  { font-size: 20px; line-height: 1; transition: transform 0.2s; }
+
+.nav-label { font-size: 10px; font-weight: 500; letter-spacing: 0.3px; }
+
+/* Dedicated circle for the waiting button */
+.nav-waiting-circle {
+  background: var(--accent);
+  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -30px; /* Protrude up out of the bar */
+  box-shadow: 0 8px 16px rgba(245,166,35,0.4);
+  border: 4px solid var(--bg-card); /* Add a border to separate it from the bar */
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.nav-item:active .nav-waiting-circle { 
+  transform: scale(0.9) translateY(2px);
+  box-shadow: 0 4px 8px rgba(245,166,35,0.3);
+}
+
+.nav-icon-big { 
+  font-size: 26px; 
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button.nav-item {
+  background: none;
+  border: none;
+  font-family: inherit;
+}

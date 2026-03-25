@@ -1,0 +1,91 @@
+<div class="page-container">
+  <div class="page-scroll">
+    <div class="waiting-page">
+
+      <!-- Header -->
+      <div class="waiting-header">
+        <button class="btn-ghost" (click)="goBack()">← {{ 'SHARED.BACK' | translate }}</button>
+        <h1 style="margin-top:16px;">{{ 'WAITING.HEADING' | translate }}<br><span class="text-accent">{{ 'WAITING.HEADING_ACCENT' | translate }}</span></h1>
+        <p class="text-muted" style="margin-top:8px; font-size:14px;">
+          {{ 'WAITING.SUBTITLE' | translate }}
+        </p>
+      </div>
+
+      <!-- Route Selector -->
+      <div class="waiting-body">
+        <div class="form-group">
+          <label class="form-label">{{ 'WAITING.ROUTE_LABEL' | translate }}</label>
+          <select class="form-input" [(ngModel)]="selectedRouteId">
+            <option value="">{{ 'WAITING.ROUTE_PLACEHOLDER' | translate }}</option>
+            @for (r of routes(); track r.id) {
+              <option [value]="r.id">{{ r.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group mt-md">
+          <label class="form-label">{{ 'WAITING.PAX_LABEL' | translate }}</label>
+          <div class="count-row">
+            <button class="count-btn" (click)="adjustCount(-1)" [disabled]="count() <= 1">−</button>
+            <span class="count-display">{{ count() }}</span>
+            <button class="count-btn" (click)="adjustCount(1)" [disabled]="count() >= 10">+</button>
+          </div>
+        </div>
+
+        <!-- Main CTA -->
+        <div class="cta-area" [class.has-location]="state() === 'waiting'">
+          @switch (state()) {
+            @case ('idle') {
+              <button class="waiting-btn" (click)="startWaiting()" [disabled]="!selectedRouteId()">
+                <span class="wbtn-icon">✋</span>
+                <span class="wbtn-label">{{ 'WAITING.SIGNAL_BTN' | translate }}</span>
+                <span class="wbtn-sub">{{ 'WAITING.SIGNAL_SUB' | translate }}</span>
+              </button>
+            }
+            @case ('locating') {
+              <div class="status-card locating">
+                <div class="pulse-ring"></div>
+                <span style="font-size:32px">📡</span>
+                <p>{{ 'WAITING.LOCATING' | translate }}</p>
+              </div>
+            }
+            @case ('waiting') {
+              <div class="status-card active">
+                <span style="font-size:48px">✅</span>
+                <h3 style="color: var(--success); margin:8px 0 4px;">{{ 'WAITING.ON_MAP' | translate }}</h3>
+                <p style="font-size:13px;">{{ 'WAITING.DRIVERS_CAN_SEE' | translate }}</p>
+                @if (location()) {
+                  <div class="location-chip">
+                    📍 {{ location()!.lat.toFixed(5) }}, {{ location()!.lng.toFixed(5) }}
+                  </div>
+                }
+                <button class="btn-secondary mt-md" style="width:auto; padding:10px 24px; border-radius:99px; margin-top:16px;" (click)="cancelWaiting()">
+                  {{ 'WAITING.CANCEL' | translate }}
+                </button>
+              </div>
+            }
+            @case ('error') {
+              <div class="status-card error">
+                <span style="font-size:40px">⚠️</span>
+                <h3 style="color: var(--danger); margin:8px 0 4px;">{{ 'WAITING.LOC_ERROR' | translate }}</h3>
+                <p style="font-size:13px;">{{ errorMsg() }}</p>
+                <button class="btn-primary mt-md" style="width:auto; padding:10px 24px;" (click)="state.set('idle')">
+                  {{ 'WAITING.TRY_AGAIN' | translate }}
+                </button>
+              </div>
+            }
+          }
+        </div>
+
+        <!-- Info tips -->
+        @if (state() === 'idle') {
+          <div class="tips">
+            <div class="tip">📞 {{ 'WAITING.TIP_DASHBOARD' | translate }}</div>
+            <div class="tip">⏳ {{ 'WAITING.TIP_EXPIRES' | translate }}</div>
+            <div class="tip">🚦 {{ 'WAITING.TIP_STOP' | translate }}</div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

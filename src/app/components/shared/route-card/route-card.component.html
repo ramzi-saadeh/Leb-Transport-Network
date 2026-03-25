@@ -1,0 +1,12 @@
+<a [routerLink]="['/routes', route().id]" class="bus-card route-card">
+  <div class="route-dot" [style.background]="route().color || 'var(--accent)'"></div>
+  <div class="route-info">
+    <div class="route-name">{{ route().name }}</div>
+    <div class="route-name-ar">{{ route().nameAr }}</div>
+    <!-- <div class="route-meta">
+      <span class="chip">💰 {{ formatPrice(route().priceMin) }}–{{ formatPrice(route().priceMax) }} LBP</span>
+      <span class="chip">🕐 {{ route().frequencyLabel }}</span>
+    </div> -->
+  </div>
+  <span class="route-arrow">›</span>
+</a>

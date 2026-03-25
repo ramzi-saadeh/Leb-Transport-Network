@@ -1,0 +1,38 @@
+<div class="page-container">
+  <div class="page-scroll">
+    <div class="cs-header">
+      <button class="btn-ghost back-btn" (click)="goBack()">← {{ 'SHARED.HOME' | translate }}</button>
+    </div>
+
+    <div class="cs-body">
+      <div class="cs-icon-wrap">
+        <span class="cs-icon">🗺️</span>
+        <div class="cs-pulse"></div>
+      </div>
+
+      <h1 class="cs-title">{{ 'MAP.COMING_TITLE' | translate }}</h1>
+      <p class="cs-subtitle">{{ 'MAP.COMING_SUB' | translate }}</p>
+
+      <div class="cs-features">
+        <div class="cs-feature">
+          <span class="cs-feature-icon">📍</span>
+          <span>{{ 'MAP.FEAT_LIVE' | translate }}</span>
+        </div>
+        <div class="cs-feature">
+          <span class="cs-feature-icon">🚌</span>
+          <span>{{ 'MAP.FEAT_ROUTES' | translate }}</span>
+        </div>
+        <div class="cs-feature">
+          <span class="cs-feature-icon">✋</span>
+          <span>{{ 'MAP.FEAT_WAITING' | translate }}</span>
+        </div>
+        <div class="cs-feature">
+          <span class="cs-feature-icon">⏱️</span>
+          <span>{{ 'MAP.FEAT_ETA' | translate }}</span>
+        </div>
+      </div>
+
+      <div class="cs-badge">{{ 'MAP.COMING_BADGE' | translate }}</div>
+    </div>
+  </div>
+</div>

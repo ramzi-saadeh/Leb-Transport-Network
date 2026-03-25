@@ -1,0 +1,17 @@
+<div class="stars">
+  @for (star of stars; track star) {
+    <button
+      class="star-btn"
+      [class.filled]="star <= (hoveredStar() || value())"
+      (mouseenter)="hoveredStar.set(star)"
+      (mouseleave)="hoveredStar.set(0)"
+      (click)="onSelect(star)"
+      [disabled]="readonly()"
+      [attr.aria-label]="'Rate ' + star + ' stars'">
+      ★
+    </button>
+  }
+  @if (showCount() && count() > 0) {
+    <span class="rating-count">({{ count() }})</span>
+  }
+</div>
