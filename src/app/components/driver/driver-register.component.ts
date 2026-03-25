@@ -1,4 +1,4 @@
-import { Component, inject, signal, model, computed, Signal } from '@angular/core';
+import { Component, inject, signal, model, computed, Signal, OnDestroy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -20,7 +20,7 @@ type FormState = 'idle' | 'submitting' | 'success' | 'error';
   templateUrl: './driver-register.component.html',
   styleUrl: './driver-register.component.css',
 })
-export class DriverRegisterComponent {
+export class DriverRegisterComponent implements OnDestroy {
   readonly routes: Signal<Route[]>;
   readonly formState = signal<FormState>('idle');
   readonly errorMsg = signal('');
@@ -47,6 +47,12 @@ export class DriverRegisterComponent {
 
   goBack() { this.location.back(); }
 
+  private navTimer: ReturnType<typeof setTimeout> | null = null;
+
+  ngOnDestroy(): void {
+    if (this.navTimer) clearTimeout(this.navTimer);
+  }
+
   async submit(): Promise<void> {
     if (!this.isFormValid()) return;
     this.formState.set('submitting');
@@ -72,7 +78,7 @@ export class DriverRegisterComponent {
       });
       this.formState.set('success');
 
-      setTimeout(() => {
+      this.navTimer = setTimeout(() => {
         this.router.navigate(['/driver/dashboard']);
       }, 1500);
     } catch (err: any) {

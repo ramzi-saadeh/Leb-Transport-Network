@@ -1,14 +1,24 @@
 import {
-  Component, inject, signal, computed, effect,
-  viewChild, ElementRef, AfterViewInit, OnDestroy, Signal,
+  Component,
+  inject,
+  signal,
+  computed,
+  effect,
+  viewChild,
+  ElementRef,
+  AfterViewInit,
+  OnDestroy,
+  Signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
+import { firstValueFrom } from 'rxjs';
 import * as L from 'leaflet';
 import { RoutesService } from '../../services/routes.service';
 import { DriverLocationService } from '../../services/driver-location.service';
+import { DriversService } from '../../services/drivers.service';
 
 import { RoleService } from '../../services/role.service';
 import { Route } from '../../models/route.model';
@@ -31,6 +41,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   private readonly routesService = inject(RoutesService);
   private readonly driverLocationService = inject(DriverLocationService);
+  private readonly driversService = inject(DriversService);
   private readonly roleService = inject(RoleService);
   private readonly location = inject(Location);
 
@@ -39,7 +50,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private routePolyline: L.Polyline | null = null;
   private liveSub: any;
 
-  goBack() { this.location.back(); }
+  goBack() {
+    this.location.back();
+  }
 
   constructor() {
     this.routes = toSignal(this.routesService.getRoutes(), { initialValue: [] });
@@ -63,7 +76,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
       this.liveSub = this.driverLocationService
         .getActiveDriversOnRoute(routeId)
-        .subscribe(drivers => {
+        .subscribe((drivers) => {
           this.liveDrivers.set(drivers);
           this.updateDriverMarkers(drivers, map);
         });
@@ -89,9 +102,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   private drawRoutePolyline(routeId: string, map: L.Map): void {
-    const route = this.routes().find(r => r.id === routeId);
+    const route = this.routes().find((r) => r.id === routeId);
     if (!route?.waypoints?.length) return;
-    const latlngs = route.waypoints.map(w => [w.lat, w.lng] as L.LatLngExpression);
+    const latlngs = route.waypoints.map((w) => [w.lat, w.lng] as L.LatLngExpression);
     this.routePolyline = L.polyline(latlngs, {
       color: route.color || '#F5A623',
       weight: 5,
@@ -119,26 +132,44 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       if (this.driverMarkers.has(d.id)) {
         this.driverMarkers.get(d.id)!.setLatLng([d.lat, d.lng]);
       } else {
-        const m = L.marker([d.lat, d.lng], { icon })
+        const marker = L.marker([d.lat, d.lng], { icon })
           .addTo(map)
-          .bindPopup(`<strong>🚌 Driver on route</strong><br/>Speed: ${Math.round(d.speed)} km/h`);
-        this.driverMarkers.set(d.id, m);
+          .bindPopup(`<strong>🚌 Driver</strong><br/>`);
+        this.driverMarkers.set(d.id, marker);
+        // Fetch driver info and update popup asynchronously
+        firstValueFrom(this.driversService.getDriver(d.id))
+          .then((driver) => {
+            if (!driver) return;
+            const name = driver.name || 'Unknown Driver';
+            const plate = driver.plateNumber ? `<br/>🔢 ${driver.plateNumber}` : '';
+            // const speed = Math.round(d.speed);
+            marker.setPopupContent(
+              `<strong>🚌 ${name}</strong>${plate}<br/><a href="/drivers/${d.id}" style="color:#F5A623;font-size:12px;">View profile →</a>`,
+            );
+          })
+          .catch(() => {});
       }
     }
     // Remove markers for drivers no longer active
     for (const [id, marker] of this.driverMarkers) {
-      if (!seen.has(id)) { marker.remove(); this.driverMarkers.delete(id); }
+      if (!seen.has(id)) {
+        marker.remove();
+        this.driverMarkers.delete(id);
+      }
     }
   }
 
   private clearDriverMarkers(): void {
-    this.driverMarkers.forEach(m => m.remove());
+    this.driverMarkers.forEach((m) => m.remove());
     this.driverMarkers.clear();
     this.liveDrivers.set([]);
   }
 
   private clearPolyline(): void {
-    if (this.routePolyline) { this.routePolyline.remove(); this.routePolyline = null; }
+    if (this.routePolyline) {
+      this.routePolyline.remove();
+      this.routePolyline = null;
+    }
   }
 
   ngOnDestroy(): void {
@@ -146,4 +177,3 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.mapSig()?.remove();
   }
 }
-

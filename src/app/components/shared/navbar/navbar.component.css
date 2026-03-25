@@ -73,3 +73,44 @@ button.nav-item {
   border: none;
   font-family: inherit;
 }
+
+/* On Duty toggle */
+.duty-btn {
+  flex: 1;
+  padding: 0;
+  cursor: pointer;
+}
+
+.duty-circle {
+  background: var(--bg-input);
+  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -30px;
+  border: 4px solid var(--bg-card);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+.duty-circle-on {
+  background: #16a34a;
+  box-shadow: 0 8px 16px rgba(22,163,74,0.45);
+}
+
+.duty-btn:active .duty-circle {
+  transform: scale(0.9) translateY(2px);
+}
+
+.duty-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.duty-on .duty-label {
+  color: #16a34a;
+}

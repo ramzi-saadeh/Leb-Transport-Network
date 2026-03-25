@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, Signal } from '@angular/core';
+import { Component, inject, signal, computed, Signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -19,7 +19,7 @@ import { Route } from '../../models/route.model';
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.css',
 })
-export class SettingsComponent {
+export class SettingsComponent implements OnDestroy {
   readonly currentLang = computed(() => this.langService.currentLang());
   readonly currentTheme = computed(() => this.themeService.currentTheme());
   readonly isPassenger = computed(() => this.roleService.isPassenger());
@@ -50,6 +50,14 @@ export class SettingsComponent {
   private readonly driversService = inject(DriversService);
   private readonly routesService = inject(RoutesService);
   private readonly router = inject(Router);
+
+  private passengerMsgTimer: ReturnType<typeof setTimeout> | null = null;
+  private driverMsgTimer: ReturnType<typeof setTimeout> | null = null;
+
+  ngOnDestroy(): void {
+    if (this.passengerMsgTimer) clearTimeout(this.passengerMsgTimer);
+    if (this.driverMsgTimer) clearTimeout(this.driverMsgTimer);
+  }
 
   constructor() {
     this.routes = toSignal(this.routesService.getRoutes(), { initialValue: [] });
@@ -91,7 +99,8 @@ export class SettingsComponent {
         defaultRouteId: this.passengerRouteId(),
       });
       this.passengerSuccessMsg.set('Settings saved!');
-      setTimeout(() => this.passengerSuccessMsg.set(''), 3000);
+      if (this.passengerMsgTimer) clearTimeout(this.passengerMsgTimer);
+      this.passengerMsgTimer = setTimeout(() => this.passengerSuccessMsg.set(''), 3000);
     } catch (err: any) {
       this.passengerErrorMsg.set('Failed to save settings');
     } finally {
@@ -126,7 +135,8 @@ export class SettingsComponent {
       });
 
       this.successMsg.set('Settings saved successfully!');
-      setTimeout(() => this.successMsg.set(''), 3000);
+      if (this.driverMsgTimer) clearTimeout(this.driverMsgTimer);
+      this.driverMsgTimer = setTimeout(() => this.successMsg.set(''), 3000);
     } catch (err: any) {
       this.errorMsg.set('Failed to save settings: ' + err.message);
     } finally {

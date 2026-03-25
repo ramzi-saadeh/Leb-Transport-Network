@@ -1,5 +1,10 @@
 <nav class="bottom-nav">
-  <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+  <a
+    routerLink="/home"
+    routerLinkActive="active"
+    [routerLinkActiveOptions]="{ exact: true }"
+    class="nav-item"
+  >
     <span class="nav-icon">🏠</span>
     <span class="nav-label">{{ 'SHARED.HOME' | translate }}</span>
   </a>
@@ -15,31 +20,26 @@
         <span class="nav-icon-big">✋</span>
       </div>
     </a>
-  }
 
-  <!-- Passenger: Live Map tab -->
-  @if (isPassenger()) {
+    <!-- Passenger: Live Map tab -->
     <a routerLink="/map" routerLinkActive="active" class="nav-item">
       <span class="nav-icon">🗺️</span>
       <span class="nav-label">{{ 'SHARED.MAP' | translate }}</span>
     </a>
   } @else {
-    <a routerLink="/my-route" routerLinkActive="active" class="nav-item">
-      <span class="nav-icon">📍</span>
-      <span class="nav-label">{{ 'MY_ROUTE.TITLE' | translate }}</span>
-    </a>
-  }
+    <!-- Driver: On Duty toggle -->
+    <button class="nav-item duty-btn" (click)="toggleDuty()" [class.duty-on]="isOnDuty">
+      <div class="duty-circle" [class.duty-circle-on]="isOnDuty">
+        <span class="nav-icon-big">🚌</span>
+      </div>
+      <span class="nav-label duty-label">{{
+        (isOnDuty ? 'DRIVER.ON_DUTY' : 'DRIVER.OFF_DUTY') | translate
+      }}</span>
+    </button>
 
-  <!-- Driver Only -->
-  @if (isDriver()) {
     <a routerLink="/driver/dashboard" routerLinkActive="active" class="nav-item">
       <span class="nav-icon">📊</span>
       <span class="nav-label">{{ 'SHARED.DASHBOARD' | translate }}</span>
-    </a>
-  } @else if (!isPassenger()) {
-    <a routerLink="/driver/register" routerLinkActive="active" class="nav-item">
-      <span class="nav-icon">🚗</span>
-      <span class="nav-label">{{ 'SHARED.DRIVER' | translate }}</span>
     </a>
   }
 

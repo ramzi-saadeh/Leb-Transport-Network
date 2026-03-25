@@ -47,6 +47,12 @@ build/Release
 # Dependency directories
 node_modules/
 
+# Output of Build
+dist/
+
+.angular/
+
+
 # Optional npm cache directory
 .npm
 

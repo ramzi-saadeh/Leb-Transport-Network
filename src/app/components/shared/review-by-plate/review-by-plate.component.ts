@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnDestroy } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -19,7 +19,7 @@ import { TranslatePipe } from '@ngx-translate/core';
   templateUrl: './review-by-plate.component.html',
   styleUrl: './review-by-plate.component.css',
 })
-export class ReviewByPlateComponent {
+export class ReviewByPlateComponent implements OnDestroy {
   plateNumber = '';
   driverName = '';
   vehicleType: 'bus' | 'minibus' | 'van' | 'car' = 'bus';
@@ -44,12 +44,20 @@ export class ReviewByPlateComponent {
   private readonly location = inject(Location);
 
   constructor() {
-    this.routesService.getRoutes().subscribe(r => this.routes.set(r));
+    this.routesSub = this.routesService.getRoutes().subscribe(r => this.routes.set(r));
   }
 
   goBack() { this.location.back(); }
 
+  private routesSub: any;
   private ratingSub: any;
+  private ratingsSub: any;
+
+  ngOnDestroy(): void {
+    this.routesSub?.unsubscribe();
+    this.ratingSub?.unsubscribe();
+    this.ratingsSub?.unsubscribe();
+  }
 
   async onPlateInput() {
     this.plateNumber = this.plateNumber.toUpperCase();
@@ -65,7 +73,8 @@ export class ReviewByPlateComponent {
         if (drivers[0].routeId && drivers[0].routeId !== 'general') {
           this.selectedRouteId = drivers[0].routeId;
         }
-        this.ratingsService.getRatingsForDriver(drivers[0].id!).subscribe((ratings) => {
+        if (this.ratingsSub) this.ratingsSub.unsubscribe();
+        this.ratingsSub = this.ratingsService.getRatingsForDriver(drivers[0].id!).subscribe((ratings) => {
           this.existingRatings.set(ratings);
         });
       }

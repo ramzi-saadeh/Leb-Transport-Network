@@ -1,4 +1,4 @@
-import { Component, inject, computed, Signal, signal } from '@angular/core';
+import { Component, inject, computed, Signal, signal, OnDestroy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -16,7 +16,7 @@ import { Driver } from '../../models/driver.model';
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
-export class HomeComponent {
+export class HomeComponent implements OnDestroy {
   readonly isPassenger = computed(() => this.roleService.isPassenger());
   readonly isDriver = computed(() => this.roleService.isDriver());
   readonly driverProfile = computed(() => this.roleService.driverProfile());
@@ -68,6 +68,11 @@ export class HomeComponent {
   private readonly roleService = inject(RoleService);
 
   readonly shareCopied = signal(false);
+  private shareCopiedTimer: ReturnType<typeof setTimeout> | null = null;
+
+  ngOnDestroy(): void {
+    if (this.shareCopiedTimer) clearTimeout(this.shareCopiedTimer);
+  }
 
   async shareApp(): Promise<void> {
     const url = 'https://bus-leb.web.app';
@@ -80,7 +85,8 @@ export class HomeComponent {
     } else {
       await navigator.clipboard.writeText(url);
       this.shareCopied.set(true);
-      setTimeout(() => this.shareCopied.set(false), 2500);
+      if (this.shareCopiedTimer) clearTimeout(this.shareCopiedTimer);
+      this.shareCopiedTimer = setTimeout(() => this.shareCopied.set(false), 2500);
     }
   }
 

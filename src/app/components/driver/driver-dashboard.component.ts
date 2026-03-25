@@ -130,8 +130,8 @@ export class DriverDashboardComponent implements AfterViewInit, OnDestroy {
     // Fetch ratings for current driver
     effect(() => {
       const profile = this.roleService.driverProfile();
+      if (this.resSub) this.resSub.unsubscribe();
       if (profile?.id) {
-        if (this.resSub) this.resSub.unsubscribe();
         this.resSub = this.ratingsService.getRatingsForDriver(profile.id).subscribe((data) => {
           this.ratings.set(data);
         });
@@ -140,8 +140,8 @@ export class DriverDashboardComponent implements AfterViewInit, OnDestroy {
 
     effect(() => {
       const profile = this.roleService.driverProfile();
+      if (this.driverSub) this.driverSub.unsubscribe();
       if (profile?.id) {
-        if (this.driverSub) this.driverSub.unsubscribe();
         this.driverSub = this.driversService.getDriver(profile.id).subscribe((d) => {
           if (d !== undefined) this.driverIsActive.set(d.isActive);
         });

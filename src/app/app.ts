@@ -1,6 +1,7 @@
-import { Component, inject, signal, effect } from '@angular/core';
+import { Component, inject, signal, effect, DestroyRef } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { filter, map, mergeMap } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { NavbarComponent } from './components/shared/navbar/navbar.component';
 import { LanguageService } from './services/language.service';
@@ -22,6 +23,7 @@ export class App {
   private readonly themeService = inject(ThemeService);
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly showNavbar = signal(false);
 
@@ -36,7 +38,7 @@ export class App {
     });
 
     this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
+      .pipe(filter((event) => event instanceof NavigationEnd), takeUntilDestroyed(this.destroyRef))
       .subscribe((event: NavigationEnd) => {
         const path = event.urlAfterRedirects.split('/')[1].split('?')[0];
         this.showNavbar.set(!NO_NAV_ROUTES.includes(path));
@@ -52,6 +54,7 @@ export class App {
         }),
         filter((route) => route.outlet === 'primary'),
         mergeMap((route) => route.data),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((data) => {
         this.seoService.updateTags(data['titleKey'], data['descriptionKey']);

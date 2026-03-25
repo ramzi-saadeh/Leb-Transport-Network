@@ -39,6 +39,7 @@ export class RouteDetailComponent implements OnDestroy {
   private readonly location = inject(Location);
 
   private liveSub: any;
+  private copiedTimer: ReturnType<typeof setTimeout> | null = null;
 
   goBack() { this.location.back(); }
 
@@ -85,6 +86,7 @@ export class RouteDetailComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     if (this.liveSub) this.liveSub.unsubscribe();
+    if (this.copiedTimer) clearTimeout(this.copiedTimer);
   }
 
   vehicleLabel(type: string): string {
@@ -106,7 +108,8 @@ export class RouteDetailComponent implements OnDestroy {
     } else {
       navigator.clipboard.writeText(url).then(() => {
         this.copied.set(true);
-        setTimeout(() => this.copied.set(false), 2000);
+        if (this.copiedTimer) clearTimeout(this.copiedTimer);
+        this.copiedTimer = setTimeout(() => this.copied.set(false), 2000);
       });
     }
   }

@@ -44,7 +44,7 @@ export class DriverLocationService {
           lng: pos.coords.longitude,
           routeId,
           heading: pos.coords.heading ?? 0,
-          speed: pos.coords.speed ? pos.coords.speed * 3.6 : 0, // m/s → km/h
+          //   speed: pos.coords.speed ? pos.coords.speed * 3.6 : 0, // m/s → km/h
           isActive: true,
           updatedAt: Date.now(),
         };
@@ -64,7 +64,11 @@ export class DriverLocationService {
     if (this.activeDriverId) {
       const locationRef = ref(this.db, `driver_locations/${this.activeDriverId}`);
       set(locationRef, {
-        lat: 0, lng: 0, routeId: '', heading: 0, speed: 0,
+        lat: 0,
+        lng: 0,
+        routeId: '',
+        heading: 0,
+        speed: 0,
         isActive: false,
         updatedAt: Date.now(),
       });
@@ -78,11 +82,7 @@ export class DriverLocationService {
    */
   getActiveDriversOnRoute(routeId: string): Observable<LiveDriverLocationWithId[]> {
     return new Observable((observer) => {
-      const q = query(
-        ref(this.db, 'driver_locations'),
-        orderByChild('routeId'),
-        equalTo(routeId),
-      );
+      const q = query(ref(this.db, 'driver_locations'), orderByChild('routeId'), equalTo(routeId));
       const unsubscribe = onValue(
         q,
         (snapshot) => {

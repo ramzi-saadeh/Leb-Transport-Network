@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RoleService } from '../../services/role.service';
@@ -13,9 +13,11 @@ const ONBOARDING_KEY = 'onboarding_done';
   templateUrl: './splash.component.html',
   styleUrl: './splash.component.css',
 })
-export class SplashComponent implements OnInit {
+export class SplashComponent implements OnInit, OnDestroy {
+  private splashTimer: ReturnType<typeof setTimeout> | null = null;
+
   ngOnInit(): void {
-    setTimeout(() => {
+    this.splashTimer = setTimeout(() => {
       // First-ever launch: show onboarding wizard
       const onboardingDone = localStorage.getItem(ONBOARDING_KEY) === 'true';
       if (!onboardingDone) {
@@ -40,4 +42,8 @@ export class SplashComponent implements OnInit {
 
   private readonly router = inject(Router);
   private readonly roleService = inject(RoleService);
+
+  ngOnDestroy(): void {
+    if (this.splashTimer) clearTimeout(this.splashTimer);
+  }
 }
