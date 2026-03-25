@@ -3,8 +3,9 @@
     "driver_locations": {
       // Anyone can read live driver locations (public transport tracking)
       ".read": true,
+      // Index routeId so orderByChild('routeId') queries are efficient
+      ".indexOn": ["routeId"],
       "$driverId": {
-        // Only writes with required fields are accepted
         ".write": true,
         ".validate": "newData.hasChildren(['lat','lng','routeId','isActive','updatedAt'])"
       }

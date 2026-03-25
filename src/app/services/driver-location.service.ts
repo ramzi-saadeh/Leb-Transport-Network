@@ -12,7 +12,7 @@ import {
 import { Observable } from 'rxjs';
 import { LiveDriverLocation, LiveDriverLocationWithId } from '../models/driver-location.model';
 
-const STALE_MS = 30_000; // hide drivers not updated in 30s
+const STALE_MS = 60_000; // hide drivers not updated in 60s
 
 @Injectable({ providedIn: 'root' })
 export class DriverLocationService {
@@ -27,6 +27,9 @@ export class DriverLocationService {
    * Idempotent — calling again with a new driverId stops the previous session.
    */
   startSharing(driverId: string, routeId: string): void {
+    // Idempotent — skip restart if already sharing for this same driver+route
+    if (this.activeDriverId === driverId && this.watchId !== null) return;
+
     this.stopSharing();
     this.activeDriverId = driverId;
 
@@ -68,7 +71,6 @@ export class DriverLocationService {
         lng: 0,
         routeId: '',
         heading: 0,
-        speed: 0,
         isActive: false,
         updatedAt: Date.now(),
       });

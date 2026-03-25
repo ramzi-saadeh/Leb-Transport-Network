@@ -181,5 +181,12 @@
     "ROUTE_SKIP": "Skip for now",
     "NEXT": "Continue",
     "LETS_GO": "Let's Go"
+  },
+  "GEO_BANNER": {
+    "PROMPT_TITLE": "Allow location for the full experience",
+    "PROMPT_BODY": "See live bus drivers on the map, signal your stop, and get real-time updates. When prompted, tap \"Allow\" to enable location.",
+    "DENIED_TITLE": "Location is turned off",
+    "DENIED_BODY": "Go to your phone's Settings → Privacy → Location, and allow location for your browser. Then reload the app.",
+    "DISMISS": "Dismiss"
   }
 }

@@ -1,8 +1,34 @@
 import { Injectable } from '@angular/core';
-import { from, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
+
+export type LocationPermissionState = 'granted' | 'denied' | 'prompt' | 'unsupported';
 
 @Injectable({ providedIn: 'root' })
 export class GeolocationService {
+
+  /**
+   * Checks the current permission state and, if it hasn't been decided yet,
+   * triggers the native browser dialog. Returns the resulting state.
+   */
+  async requestPermission(): Promise<LocationPermissionState> {
+    if (!navigator.geolocation) return 'unsupported';
+
+    // Use Permissions API if available to check state first
+    if (navigator.permissions) {
+      const status = await navigator.permissions.query({ name: 'geolocation' });
+      if (status.state === 'granted') return 'granted';
+      if (status.state === 'denied') return 'denied';
+    }
+
+    // State is 'prompt' (or Permissions API unavailable) — trigger the dialog
+    return new Promise<LocationPermissionState>((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        () => resolve('granted'),
+        (err) => resolve(err.code === 1 ? 'denied' : 'prompt'),
+        { enableHighAccuracy: false, timeout: 15_000, maximumAge: 60_000 },
+      );
+    });
+  }
 
   getCurrentPosition(): Promise<{ lat: number; lng: number }> {
     return this.tryGetPosition(true).catch(() => this.tryGetPosition(false));

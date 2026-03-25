@@ -2,3 +2,25 @@
 @if (showNavbar()) {
   <app-navbar />
 }
+
+@if (locationPrompt()) {
+  <div class="location-denied-banner location-prompt-banner" role="status">
+    <span class="location-denied-icon">📍</span>
+    <div class="location-denied-text">
+      <strong>{{ 'GEO_BANNER.PROMPT_TITLE' | translate }}</strong>
+      <span>{{ 'GEO_BANNER.PROMPT_BODY' | translate }}</span>
+    </div>
+    <button class="location-denied-close" (click)="locationPrompt.set(false)" [attr.aria-label]="'GEO_BANNER.DISMISS' | translate">✕</button>
+  </div>
+}
+
+@if (locationDenied()) {
+  <div class="location-denied-banner" role="alert">
+    <span class="location-denied-icon">🚫</span>
+    <div class="location-denied-text">
+      <strong>{{ 'GEO_BANNER.DENIED_TITLE' | translate }}</strong>
+      <span>{{ 'GEO_BANNER.DENIED_BODY' | translate }}</span>
+    </div>
+    <button class="location-denied-close" (click)="locationDenied.set(false)" [attr.aria-label]="'GEO_BANNER.DISMISS' | translate">✕</button>
+  </div>
+}
