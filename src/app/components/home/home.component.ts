@@ -1,4 +1,6 @@
 import { Component, inject, computed, Signal, signal, OnDestroy } from '@angular/core';
+import { Share } from '@capacitor/share';
+import { Capacitor } from '@capacitor/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -75,15 +77,19 @@ export class HomeComponent implements OnDestroy {
   }
 
   async shareApp(): Promise<void> {
-    const url = 'https://bus-leb.web.app';
-    const title = 'Lebanon Bus Guide 🇱🇧';
-    const text = 'Find bus routes, signal drivers and explore Lebanon\'s public transport network!';
-    if (navigator.share) {
+    const url = 'https://leb-bus.web.app';
+    const title = 'Lebanon Bus 🚌';
+    const text = '📲 Install Lebanon Bus – track live buses, signal your stop, and explore public transport routes across Lebanon!\n';
+    if (Capacitor.isNativePlatform()) {
+      try {
+        await Share.share({ title, text: text + url, url, dialogTitle: title });
+      } catch { /* user cancelled */ }
+    } else if (navigator.share) {
       try {
         await navigator.share({ title, text, url });
       } catch { /* user cancelled */ }
     } else {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(text + url);
       this.shareCopied.set(true);
       if (this.shareCopiedTimer) clearTimeout(this.shareCopiedTimer);
       this.shareCopiedTimer = setTimeout(() => this.shareCopied.set(false), 2500);
