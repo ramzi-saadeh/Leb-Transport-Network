@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">bus-leb</string>
+    <string name="title_activity_main">bus-leb</string>
+    <string name="package_name">com.bus.leb</string>
+    <string name="custom_url_scheme">com.bus.leb</string>
+</resources>
