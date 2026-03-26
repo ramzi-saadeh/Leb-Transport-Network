@@ -1,13 +1,12 @@
 <div class="page-container">
   <div class="page-scroll">
-
     <!-- Hero Header -->
     <div class="home-hero">
       <div class="hero-badge">
         @if (passengerName()) {
-          {{ 'HOME.WELCOME' | translate:{ name: passengerName() } }}
+        {{ 'HOME.WELCOME' | translate : { name: passengerName() } }}
         } @else {
-          <span [innerHTML]="'HOME.LEBANON_BUS_NETWORK' | translate"></span>
+        <span [innerHTML]="'HOME.LEBANON_BUS_NETWORK' | translate"></span>
         }
       </div>
       <h1 class="hero-title" [innerHTML]="'HOME.FIND_YOUR_BUS_RIDE' | translate"></h1>
@@ -16,18 +15,18 @@
 
     <!-- Usual Route -->
     @if (preferredRoute(); as route) {
-      <div class="section p-lg" style="padding-bottom: 0;">
-        <div class="section-header">
-          <h2>{{ 'SETTINGS.PREFERRED_ROUTE' | translate }}</h2>
-          <a routerLink="/settings">⚙️</a>
-        </div>
-        <app-route-card [route]="route" />
+    <div class="section p-lg" style="padding-bottom: 0">
+      <div class="section-header">
+        <h2>{{ 'SETTINGS.PREFERRED_ROUTE' | translate }}</h2>
+        <a routerLink="/settings">⚙️</a>
       </div>
+      <app-route-card [route]="route" />
+    </div>
     }
 
     <!-- Quick Actions -->
     <div class="section p-lg">
-      <h2 style="margin-bottom: 14px;">{{ 'HOME.QUICK_ACTIONS' | translate }}</h2>
+      <h2 style="margin-bottom: 14px">{{ 'HOME.QUICK_ACTIONS' | translate }}</h2>
       <div class="quick-grid">
         @if (isPassenger()) {
         <a routerLink="/waiting" class="quick-card waiting-card">
@@ -36,20 +35,13 @@
           <span class="quick-sub">{{ 'HOME.SIGNAL_YOUR_STOP' | translate }}</span>
         </a>
 
-        <a routerLink="/review-by-plate" class="quick-card" style="background: var(--bg-card);">
+        <a routerLink="/review-by-plate" class="quick-card" style="background: var(--bg-card)">
           <span class="quick-icon">📝</span>
           <span class="quick-label">{{ 'HOME.REVIEW_BY_PLATE' | translate }}</span>
           <span class="quick-sub">{{ 'HOME.NO_DRIVER_NAME_NEEDED' | translate }}</span>
         </a>
 
-        <a routerLink="/my-route" class="quick-card my-route-card">
-          <span class="quick-icon">📍</span>
-          <span class="quick-label">{{ 'MY_ROUTE.QUICK_LABEL' | translate }}</span>
-          <span class="quick-sub">{{ 'MY_ROUTE.QUICK_SUB' | translate }}</span>
-        </a>
-        }
-
-        @if (isDriver()) {
+        } @if (isDriver()) {
         <a routerLink="/driver/dashboard" class="quick-card driver-card">
           <span class="quick-icon">📊</span>
           <span class="quick-label">{{ 'SHARED.DASHBOARD' | translate }}</span>
@@ -57,13 +49,16 @@
         </a>
 
         @if (driverProfile()?.id) {
-        <a [routerLink]="['/drivers', driverProfile()!.id]" class="quick-card" style="background: var(--bg-card);">
+        <a
+          [routerLink]="['/drivers', driverProfile()!.id]"
+          class="quick-card"
+          style="background: var(--bg-card)"
+        >
           <span class="quick-icon">⭐</span>
           <span class="quick-label">{{ 'SHARED.MY_REVIEWS' | translate }}</span>
           <span class="quick-sub">{{ 'HOME.SEE_YOUR_RATINGS' | translate }}</span>
         </a>
-        }
-        } @else if (!isPassenger()) {
+        } } @else if (!isPassenger()) {
         <a routerLink="/driver/register" class="quick-card driver-card">
           <span class="quick-icon">🚗</span>
           <span class="quick-label">{{ 'HOME.IM_A_DRIVER' | translate }}</span>
@@ -74,7 +69,9 @@
         <!-- Invite card — visible to all roles -->
         <button class="quick-card invite-card" (click)="shareApp()">
           <span class="quick-icon">{{ shareCopied() ? '✅' : '🔗' }}</span>
-          <span class="quick-label">{{ shareCopied() ? ('HOME.INVITE_COPIED' | translate) : ('HOME.INVITE_LABEL' | translate) }}</span>
+          <span class="quick-label">{{
+            shareCopied() ? ('HOME.INVITE_COPIED' | translate) : ('HOME.INVITE_LABEL' | translate)
+          }}</span>
           <span class="quick-sub">{{ 'HOME.INVITE_SUB' | translate }}</span>
         </button>
       </div>
@@ -92,7 +89,7 @@
 
     <!-- Network Stats -->
     <div class="section p-lg">
-      <h2 style="margin-bottom: 14px;">{{ 'STATS.TITLE' | translate }}</h2>
+      <h2 style="margin-bottom: 14px">{{ 'STATS.TITLE' | translate }}</h2>
       <div class="stats-grid">
         <div class="stat-card">
           <span class="stat-value">{{ totalDrivers() }}</span>
@@ -116,17 +113,19 @@
       <div class="fleet-breakdown">
         <p class="fleet-title">{{ 'STATS.VEHICLE_TYPE' | translate }}</p>
         @for (item of fleetBreakdown(); track item.type) {
-          <div class="fleet-row">
-            <span class="fleet-type">{{ item.typeKey | translate }}</span>
-            <div class="fleet-bar-wrap">
-              <div class="fleet-bar" [style.width.%]="item.percentage"></div>
-            </div>
-            <span class="fleet-count">{{ item.count }} <span class="fleet-pct">({{ item.percentage | number:'1.0-0' }}%)</span></span>
+        <div class="fleet-row">
+          <span class="fleet-type">{{ item.typeKey | translate }}</span>
+          <div class="fleet-bar-wrap">
+            <div class="fleet-bar" [style.width.%]="item.percentage"></div>
           </div>
+          <span class="fleet-count"
+            >{{ item.count }}
+            <span class="fleet-pct">({{ item.percentage | number : '1.0-0' }}%)</span></span
+          >
+        </div>
         }
       </div>
       }
     </div>
-
   </div>
 </div>

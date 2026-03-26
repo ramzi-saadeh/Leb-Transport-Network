@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Geolocation } from '@capacitor/geolocation';
 import { Observable } from 'rxjs';
 
 export type LocationPermissionState = 'granted' | 'denied' | 'prompt' | 'unsupported';
@@ -7,59 +8,68 @@ export type LocationPermissionState = 'granted' | 'denied' | 'prompt' | 'unsuppo
 export class GeolocationService {
 
   /**
-   * Checks the current permission state and, if it hasn't been decided yet,
-   * triggers the native browser dialog. Returns the resulting state.
+   * Requests location permission via Capacitor (native dialog on Android/iOS,
+   * browser dialog on web). Returns the resulting state.
    */
   async requestPermission(): Promise<LocationPermissionState> {
-    if (!navigator.geolocation) return 'unsupported';
+    try {
+      const status = await Geolocation.checkPermissions();
 
-    // Use Permissions API if available to check state first
-    if (navigator.permissions) {
-      const status = await navigator.permissions.query({ name: 'geolocation' });
-      if (status.state === 'granted') return 'granted';
-      if (status.state === 'denied') return 'denied';
-    }
-
-    // State is 'prompt' (or Permissions API unavailable) — trigger the dialog
-    return new Promise<LocationPermissionState>((resolve) => {
-      navigator.geolocation.getCurrentPosition(
-        () => resolve('granted'),
-        (err) => resolve(err.code === 1 ? 'denied' : 'prompt'),
-        { enableHighAccuracy: false, timeout: 15_000, maximumAge: 60_000 },
-      );
-    });
-  }
-
-  getCurrentPosition(): Promise<{ lat: number; lng: number }> {
-    return this.tryGetPosition(true).catch(() => this.tryGetPosition(false));
-  }
-
-  private tryGetPosition(highAccuracy: boolean): Promise<{ lat: number; lng: number }> {
-    return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
-        reject(new Error('Geolocation not supported'));
-        return;
+      if (status.location === 'granted' || status.coarseLocation === 'granted') {
+        return 'granted';
       }
-      navigator.geolocation.getCurrentPosition(
-        pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        err => reject(err),
-        { enableHighAccuracy: highAccuracy, timeout: highAccuracy ? 10000 : 20000, maximumAge: 60000 }
-      );
-    });
+
+      if (status.location === 'denied') {
+        return 'denied';
+      }
+
+      // 'prompt' or 'prompt-with-rationale' — request it
+      const result = await Geolocation.requestPermissions({ permissions: ['location'] });
+      if (result.location === 'granted') return 'granted';
+      if (result.location === 'denied') return 'denied';
+      return 'prompt';
+    } catch {
+      return 'unsupported';
+    }
+  }
+
+  async getCurrentPosition(): Promise<{ lat: number; lng: number }> {
+    try {
+      const pos = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: true,
+        timeout: 10_000,
+        maximumAge: 60_000,
+      });
+      return { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    } catch {
+      // Fallback: try with low accuracy
+      const pos = await Geolocation.getCurrentPosition({
+        enableHighAccuracy: false,
+        timeout: 20_000,
+        maximumAge: 60_000,
+      });
+      return { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    }
   }
 
   watchPosition(): Observable<{ lat: number; lng: number }> {
     return new Observable(observer => {
-      if (!navigator.geolocation) {
-        observer.error('Geolocation not supported');
-        return;
-      }
-      const id = navigator.geolocation.watchPosition(
-        pos => observer.next({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        err => observer.error(err),
-        { enableHighAccuracy: true }
-      );
-      return () => navigator.geolocation.clearWatch(id);
+      let watchId: string | null = null;
+
+      Geolocation.watchPosition(
+        { enableHighAccuracy: true },
+        (pos, err) => {
+          if (err || !pos) {
+            observer.error(err);
+            return;
+          }
+          observer.next({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        }
+      ).then(id => { watchId = id; });
+
+      return () => {
+        if (watchId) Geolocation.clearWatch({ id: watchId });
+      };
     });
   }
 }

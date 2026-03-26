@@ -145,25 +145,6 @@
     "ROUTE_HINT": "(اختياري)",
     "ROUTE_NONE": "— غير متأكد / لا يهم —"
   },
-  "MY_ROUTE": {
-    "TITLE": "مساري",
-    "SUBTITLE": "اختر مدنتينك وسنجد مسارك.",
-    "FROM_LABEL": "من",
-    "TO_LABEL": "إلى",
-    "FROM_PLACEHOLDER": "اختر مدينة الانطلاق",
-    "TO_PLACEHOLDER": "اختر مدينة الوصول",
-    "SELECT_FROM_FIRST": "اختر مدينة الانطلاق أولاً",
-    "SAME_CITY_ERROR": "يجب أن تكون مدينة الانطلاق والوصول مختلفتين",
-    "SUBMIT": "ابحث عن مساري",
-    "SUBMITTING": "جاري البحث...",
-    "FOUND_TITLE": "تم العثور على المسار!",
-    "FOUND_BTN": "عرض المسار",
-    "NOT_FOUND_TITLE": "المسار غير متاح حالياً",
-    "NOT_FOUND_DESC": "حفظنا طلبك. سنضيف هذا المسار عندما يكون هناك طلب كافٍ من الركاب.",
-    "NOT_FOUND_BTN": "رجوع",
-    "QUICK_LABEL": "مساري",
-    "QUICK_SUB": "خطط رحلتك"
-  },
   "ONBOARDING": {
     "PAGE_TITLE": "أهلاً بك في حافلات لبنان",
     "LANG_TITLE": "اختر لغتك",

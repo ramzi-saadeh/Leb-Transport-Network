@@ -145,25 +145,6 @@
     "ROUTE_HINT": "(Optional)",
     "ROUTE_NONE": "— Not sure / doesn't matter —"
   },
-  "MY_ROUTE": {
-    "TITLE": "My Route",
-    "SUBTITLE": "Select your cities and we'll find your route.",
-    "FROM_LABEL": "From",
-    "TO_LABEL": "To",
-    "FROM_PLACEHOLDER": "Select departure city",
-    "TO_PLACEHOLDER": "Select destination city",
-    "SELECT_FROM_FIRST": "Select a departure city first",
-    "SAME_CITY_ERROR": "Departure and destination must be different",
-    "SUBMIT": "Find My Route",
-    "SUBMITTING": "Searching...",
-    "FOUND_TITLE": "Route Found!",
-    "FOUND_BTN": "View Route",
-    "NOT_FOUND_TITLE": "Route Not Available Yet",
-    "NOT_FOUND_DESC": "We've saved your request. We'll add this route when there's enough demand from passengers.",
-    "NOT_FOUND_BTN": "Go Back",
-    "QUICK_LABEL": "My Route",
-    "QUICK_SUB": "Plan your trip"
-  },
   "ONBOARDING": {
     "PAGE_TITLE": "Welcome to Lebanon Bus",
     "LANG_TITLE": "Choose Your Language",

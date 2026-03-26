@@ -9,6 +9,7 @@ import {
   equalTo,
   onDisconnect,
 } from '@angular/fire/database';
+import { Geolocation } from '@capacitor/geolocation';
 import { Observable } from 'rxjs';
 import { LiveDriverLocation, LiveDriverLocationWithId } from '../models/driver-location.model';
 
@@ -18,7 +19,7 @@ const STALE_MS = 60_000; // hide drivers not updated in 60s
 export class DriverLocationService {
   private readonly db = inject(Database);
 
-  private watchId: number | null = null;
+  private watchId: string | null = null;
   private activeDriverId: string | null = null;
 
   /**
@@ -33,35 +34,32 @@ export class DriverLocationService {
     this.stopSharing();
     this.activeDriverId = driverId;
 
-    if (!navigator.geolocation) return;
-
     const locationRef = ref(this.db, `driver_locations/${driverId}`);
 
     // Mark inactive automatically if the RTDB connection drops
     onDisconnect(locationRef).update({ isActive: false, updatedAt: Date.now() });
 
-    this.watchId = navigator.geolocation.watchPosition(
-      (pos) => {
+    Geolocation.watchPosition(
+      { enableHighAccuracy: true, timeout: 10_000, maximumAge: 5_000 },
+      (pos, err) => {
+        if (err || !pos) return;
         const payload: LiveDriverLocation = {
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
           routeId,
           heading: pos.coords.heading ?? 0,
-          //   speed: pos.coords.speed ? pos.coords.speed * 3.6 : 0, // m/s → km/h
           isActive: true,
           updatedAt: Date.now(),
         };
         set(locationRef, payload);
-      },
-      () => {}, // silently ignore individual GPS errors
-      { enableHighAccuracy: true, timeout: 10_000, maximumAge: 5_000 },
-    );
+      }
+    ).then(id => { this.watchId = id; });
   }
 
   /** Stop broadcasting — clears the GPS watch and marks driver inactive in RTDB. */
   stopSharing(): void {
     if (this.watchId !== null) {
-      navigator.geolocation.clearWatch(this.watchId);
+      Geolocation.clearWatch({ id: this.watchId });
       this.watchId = null;
     }
     if (this.activeDriverId) {
