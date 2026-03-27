@@ -54,7 +54,11 @@
     "OFF_DUTY": "Off Duty",
     "VERIFIED_BADGE": "Trusted",
     "SHARE": "Share Route",
-    "LINK_COPIED": "Link Copied!"
+    "LINK_COPIED": "Link Copied!",
+    "GPS_TITLE": "GPS Required",
+    "GPS_BODY": "Enable your location so passengers can see you on the map.",
+    "GPS_DENIED_BODY": "Location is blocked. Go to Settings → Apps → Lebanon Bus → Permissions → Location.",
+    "GPS_ENABLE": "Enable GPS"
   },
   "HOME": {
     "TITLE": "Home",

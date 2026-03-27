@@ -9,6 +9,7 @@ import { DriversService } from '../../services/drivers.service';
 import { RoutesService } from '../../services/routes.service';
 import { AuthService } from '../../services/auth.service';
 import { RoleService } from '../../services/role.service';
+import { GeolocationService } from '../../services/geolocation.service';
 import { Route } from '../../models/route.model';
 
 type FormState = 'idle' | 'submitting' | 'success' | 'error';
@@ -44,6 +45,7 @@ export class DriverRegisterComponent implements OnDestroy {
   private readonly roleService = inject(RoleService);
   private readonly router = inject(Router);
   private readonly location = inject(Location);
+  private readonly geoService = inject(GeolocationService);
 
   goBack() { this.location.back(); }
 
@@ -77,6 +79,8 @@ export class DriverRegisterComponent implements OnDestroy {
         vehicleType: this.vehicleType(),
       });
       this.formState.set('success');
+      // Request GPS permission right after registration so driver is ready to share location
+      this.geoService.requestPermission();
 
       this.navTimer = setTimeout(() => {
         this.router.navigate(['/driver/dashboard']);

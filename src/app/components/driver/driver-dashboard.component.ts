@@ -6,6 +6,7 @@ import {
   viewChild,
   ElementRef,
   AfterViewInit,
+  OnInit,
   OnDestroy,
   effect,
   Signal,
@@ -23,6 +24,7 @@ import { WaitingPassenger } from '../../models/waiting-passenger.model';
 import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
 import * as L from 'leaflet';
 import { RoleService } from '../../services/role.service';
+import { GeolocationService } from '../../services/geolocation.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Route } from '../../models/route.model';
 
@@ -33,7 +35,7 @@ import { Route } from '../../models/route.model';
   templateUrl: './driver-dashboard.component.html',
   styleUrl: './driver-dashboard.component.css',
 })
-export class DriverDashboardComponent implements AfterViewInit, OnDestroy {
+export class DriverDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly mapContainer = viewChild<ElementRef>('dashMap');
   readonly driverRouteId = computed(() => this.roleService.driverRouteId());
   readonly routes: Signal<Route[]>;
@@ -44,6 +46,8 @@ export class DriverDashboardComponent implements AfterViewInit, OnDestroy {
     this.passengers().reduce((s: number, p: WaitingPassenger) => s + p.count, 0),
   );
   readonly driverIsActive = signal<boolean>(true);
+  readonly gpsGranted = signal<boolean>(true); // default true to avoid flash before check
+  readonly gpsPrompt = signal<boolean>(false);
 
   constructor() {
     this.routes = toSignal(this.routesService.getRoutes(), { initialValue: [] });
@@ -169,6 +173,7 @@ export class DriverDashboardComponent implements AfterViewInit, OnDestroy {
   private readonly ratingsService = inject(RatingsService);
   private readonly driversService = inject(DriversService);
   private readonly driverLocationService = inject(DriverLocationService);
+  private readonly geoService = inject(GeolocationService);
   private readonly router = inject(Router);
   private readonly location = inject(Location);
   private readonly mapSignal = signal<L.Map | null>(null);
@@ -180,6 +185,22 @@ export class DriverDashboardComponent implements AfterViewInit, OnDestroy {
   private driverSub: any;
   private routePolyline: L.Polyline | null = null;
   private stopMarkers: L.Marker[] = [];
+
+  ngOnInit(): void {
+    this.checkGps();
+  }
+
+  private async checkGps(): Promise<void> {
+    const state = await this.geoService.requestPermission();
+    this.gpsGranted.set(state === 'granted');
+    this.gpsPrompt.set(state === 'denied');
+  }
+
+  async requestGps(): Promise<void> {
+    const state = await this.geoService.requestPermission();
+    this.gpsGranted.set(state === 'granted');
+    this.gpsPrompt.set(state === 'denied');
+  }
 
   ngAfterViewInit(): void {
     const m = L.map('dash-map', { center: [33.8938, 35.5018], zoom: 10, zoomControl: false });

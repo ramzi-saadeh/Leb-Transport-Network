@@ -13,6 +13,22 @@
     <div class="dash-title">{{ 'SHARED.DASHBOARD' | translate }}</div>
   </div>
 
+  <!-- GPS warning banner -->
+  @if (!gpsGranted()) {
+    <div class="gps-banner">
+      <span class="gps-banner-icon">📍</span>
+      <div class="gps-banner-text">
+        <strong>{{ 'DRIVER.GPS_TITLE' | translate }}</strong>
+        <span>{{ (gpsPrompt() ? 'DRIVER.GPS_DENIED_BODY' : 'DRIVER.GPS_BODY') | translate }}</span>
+      </div>
+      @if (!gpsPrompt()) {
+        <button class="gps-banner-btn" (click)="requestGps()">
+          {{ 'DRIVER.GPS_ENABLE' | translate }}
+        </button>
+      }
+    </div>
+  }
+
   <!-- Stats bar -->
   <div class="dash-stats">
     <div class="stat-pill">

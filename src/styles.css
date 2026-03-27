@@ -128,6 +128,7 @@ a  { color: var(--accent); text-decoration: none; }
   min-height: 100dvh;
   background: var(--bg-primary);
   position: relative;
+  padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: calc(var(--nav-height) + 40px + env(safe-area-inset-bottom, 0px));
 }
 
