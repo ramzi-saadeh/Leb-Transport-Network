@@ -8,6 +8,7 @@ import { LanguageService } from '../../services/language.service';
 import { ThemeService } from '../../services/theme.service';
 import { RoleService } from '../../services/role.service';
 import { RoutesService } from '../../services/routes.service';
+import { NotificationsService } from '../../services/notifications.service';
 import { Route } from '../../models/route.model';
 
 export type OnboardingStep = 'language' | 'theme' | 'role' | 'route' | 'done';
@@ -26,6 +27,7 @@ export class OnboardingComponent {
   private readonly themeService = inject(ThemeService);
   private readonly roleService = inject(RoleService);
   private readonly routesService = inject(RoutesService);
+  private readonly notificationsService = inject(NotificationsService);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
 
@@ -98,6 +100,8 @@ export class OnboardingComponent {
     }
 
     localStorage.setItem(ONBOARDING_KEY, 'true');
+    // Request notification permission right after onboarding — best time to ask
+    this.notificationsService.init();
 
     if (this.selectedRole() === 'driver') {
       this.router.navigate(['/driver/register']);

@@ -3,17 +3,21 @@ import {
   Database,
   ref,
   set,
+  update,
   onValue,
   query,
   orderByChild,
   equalTo,
   onDisconnect,
 } from '@angular/fire/database';
+import { BackgroundGeolocationPlugin, CallbackError, Location } from '@capacitor-community/background-geolocation';
+import { Capacitor, registerPlugin } from '@capacitor/core';
+const BackgroundGeolocation = registerPlugin<BackgroundGeolocationPlugin>('BackgroundGeolocation');
 import { Geolocation } from '@capacitor/geolocation';
 import { Observable } from 'rxjs';
 import { LiveDriverLocation, LiveDriverLocationWithId } from '../models/driver-location.model';
 
-const STALE_MS = 60_000; // hide drivers not updated in 60s
+const STALE_MS = 60_000;
 
 @Injectable({ providedIn: 'root' })
 export class DriverLocationService {
@@ -23,57 +27,77 @@ export class DriverLocationService {
   private activeDriverId: string | null = null;
 
   /**
-   * Start broadcasting this driver's GPS position via watchPosition.
-   * Updates fire whenever the device reports a new position.
-   * Idempotent — calling again with a new driverId stops the previous session.
+   * Start broadcasting GPS position — works in foreground AND background.
+   * On native: uses BackgroundGeolocation (foreground service on Android,
+   *             background mode on iOS).
+   * On web: falls back to @capacitor/geolocation watchPosition.
+   * Idempotent — safe to call multiple times.
    */
   startSharing(driverId: string, routeId: string): void {
-    // Idempotent — skip restart if already sharing for this same driver+route
     if (this.activeDriverId === driverId && this.watchId !== null) return;
-
     this.stopSharing();
     this.activeDriverId = driverId;
 
     const locationRef = ref(this.db, `driver_locations/${driverId}`);
-
-    // Mark inactive automatically if the RTDB connection drops
     onDisconnect(locationRef).update({ isActive: false, updatedAt: Date.now() });
 
-    Geolocation.watchPosition(
-      { enableHighAccuracy: true, timeout: 10_000, maximumAge: 5_000 },
-      (pos, err) => {
-        if (err || !pos) return;
-        const payload: LiveDriverLocation = {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          routeId,
-          heading: pos.coords.heading ?? 0,
-          isActive: true,
-          updatedAt: Date.now(),
-        };
-        set(locationRef, payload);
-      }
-    ).then(id => { this.watchId = id; });
+    // Use update() (merge) instead of set() so that isFull and other fields
+    // written by setFull() are NOT overwritten on every GPS tick.
+    const writePosition = (lat: number, lng: number, heading: number | null) => {
+      update(locationRef, {
+        lat, lng, routeId,
+        heading: heading ?? 0,
+        isActive: true,
+        updatedAt: Date.now(),
+      });
+    };
+
+    if (Capacitor.isNativePlatform()) {
+      BackgroundGeolocation.addWatcher(
+        {
+          backgroundMessage: 'Lebanon Bus is tracking your location for passengers.',
+          backgroundTitle: 'Lebanon Bus — On Duty',
+          requestPermissions: true,
+          stale: false,
+          distanceFilter: 10,
+        },
+        (location: Location | undefined, error: CallbackError | undefined) => {
+          if (error || !location) return;
+          writePosition(location.latitude, location.longitude, location.bearing ?? null);
+        }
+      ).then((id: string) => { this.watchId = id; });
+    } else {
+      Geolocation.watchPosition(
+        { enableHighAccuracy: true, timeout: 10_000, maximumAge: 5_000 },
+        (pos, err) => {
+          if (err || !pos) return;
+          writePosition(pos.coords.latitude, pos.coords.longitude, pos.coords.heading);
+        }
+      ).then((id: string) => { this.watchId = id; });
+    }
   }
 
-  /** Stop broadcasting — clears the GPS watch and marks driver inactive in RTDB. */
   stopSharing(): void {
     if (this.watchId !== null) {
-      Geolocation.clearWatch({ id: this.watchId });
+      if (Capacitor.isNativePlatform()) {
+        BackgroundGeolocation.removeWatcher({ id: this.watchId });
+      } else {
+        Geolocation.clearWatch({ id: this.watchId });
+      }
       this.watchId = null;
     }
     if (this.activeDriverId) {
       const locationRef = ref(this.db, `driver_locations/${this.activeDriverId}`);
-      set(locationRef, {
-        lat: 0,
-        lng: 0,
-        routeId: '',
-        heading: 0,
-        isActive: false,
-        updatedAt: Date.now(),
-      });
+      set(locationRef, { lat: 0, lng: 0, routeId: '', heading: 0, isActive: false, updatedAt: Date.now() });
       this.activeDriverId = null;
     }
+  }
+
+  /** Toggle isFull flag on the driver's live location node. */
+  async setFull(driverId: string, isFull: boolean): Promise<void> {
+    const locationRef = ref(this.db, `driver_locations/${driverId}`);
+    // Also refresh updatedAt so the stale filter never hides the pin.
+    await update(locationRef, { isFull, updatedAt: Date.now() });
   }
 
   /**
@@ -97,6 +121,17 @@ export class DriverLocationService {
         },
         (err) => observer.error(err),
       );
+      return () => unsubscribe();
+    });
+  }
+
+  /** Real-time stream of a single driver's isFull flag, regardless of active state. */
+  getDriverFullStatus(driverId: string): Observable<boolean> {
+    return new Observable((observer) => {
+      const fullRef = ref(this.db, `driver_locations/${driverId}/isFull`);
+      const unsubscribe = onValue(fullRef, (snapshot) => {
+        observer.next(snapshot.val() === true);
+      });
       return () => unsubscribe();
     });
   }

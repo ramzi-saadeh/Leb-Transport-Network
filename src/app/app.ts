@@ -8,10 +8,12 @@ import { LanguageService } from './services/language.service';
 import { SEOService } from './services/seo.service';
 import { ThemeService } from './services/theme.service';
 import { GeolocationService } from './services/geolocation.service';
+import { NotificationsService } from './services/notifications.service';
 import { TranslatePipe } from '@ngx-translate/core';
 
 const NO_NAV_ROUTES = ['', 'onboarding', 'role-selection'];
 const NO_GEO_ROUTES = ['', 'onboarding', 'role-selection', 'splash'];
+const NO_NOTIF_ROUTES = ['', 'onboarding', 'role-selection', 'splash'];
 
 @Component({
   selector: 'app-root',
@@ -28,6 +30,7 @@ export class App {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly geoService = inject(GeolocationService);
+  private readonly notificationsService = inject(NotificationsService);
 
   readonly showNavbar = signal(false);
   readonly locationDenied = signal(false);
@@ -49,6 +52,12 @@ export class App {
       .subscribe((event: NavigationEnd) => {
         const path = event.urlAfterRedirects.split('/')[1].split('?')[0];
         this.showNavbar.set(!NO_NAV_ROUTES.includes(path));
+
+        // Re-request notification permission each app open until granted
+        // init() is a no-op if already initialized (permission granted)
+        if (!NO_NOTIF_ROUTES.includes(path)) {
+          this.notificationsService.init();
+        }
 
         // Request location permission once the user reaches a real content page
         if (!this.geoRequested && !NO_GEO_ROUTES.includes(path)) {

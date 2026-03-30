@@ -1,9 +1,11 @@
-import { Component, inject, signal, computed, Signal, OnDestroy } from '@angular/core';
+import { Component, inject, signal, computed, Signal, OnDestroy, viewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { switchMap } from 'rxjs';
+import { of } from 'rxjs';
 
 import { RoleService } from '../../services/role.service';
 import { LanguageService } from '../../services/language.service';
@@ -11,6 +13,9 @@ import { ThemeService } from '../../services/theme.service';
 import { DriversService } from '../../services/drivers.service';
 import { RoutesService } from '../../services/routes.service';
 import { Route } from '../../models/route.model';
+import { Driver } from '../../models/driver.model';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-settings',
@@ -43,6 +48,10 @@ export class SettingsComponent implements OnDestroy {
   readonly isSubmitting = signal(false);
   readonly successMsg = signal('');
   readonly errorMsg = signal('');
+  readonly uploadingPhoto = signal(false);
+  readonly photoInput = viewChild<ElementRef<HTMLInputElement>>('photoInput');
+  // Live driver doc to display current photoUrl
+  readonly driverDoc: Signal<Driver | undefined>;
 
   private readonly langService = inject(LanguageService);
   private readonly themeService = inject(ThemeService);
@@ -78,6 +87,11 @@ export class SettingsComponent implements OnDestroy {
       this.routeId.set(p.routeId);
       this.vehicleType.set((p.vehicleType as any) ?? 'bus');
     }
+
+    // Live driver doc for photoUrl
+    this.driverDoc = toSignal(
+      p?.id ? this.driversService.getDriver(p.id) : of(undefined)
+    );
   }
 
   setLanguage(lang: 'en' | 'ar') {
@@ -149,5 +163,75 @@ export class SettingsComponent implements OnDestroy {
       this.roleService.setRegistered(false);
       this.router.navigate(['/']);
     }
+  }
+
+  async pickAndUploadPhoto(): Promise<void> {
+    if (this.uploadingPhoto()) return;
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const photo = await Camera.getPhoto({
+          resultType: CameraResultType.Base64,
+          source: CameraSource.Prompt,
+          quality: 80,
+          width: 150,
+          height: 150,
+          correctOrientation: true,
+        });
+        if (!photo.base64String) return;
+        await this.savePhoto(`data:image/jpeg;base64,${photo.base64String}`);
+      } catch {
+        // user cancelled or permission denied — silent
+      }
+    } else {
+      this.photoInput()?.nativeElement.click();
+    }
+  }
+
+  async onFileSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file.');
+      input.value = '';
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image must be smaller than 5 MB.');
+      input.value = '';
+      return;
+    }
+    const dataUrl = await this.resizeToDataUrl(file, 150, 150);
+    await this.savePhoto(dataUrl);
+    input.value = '';
+  }
+
+  private async savePhoto(dataUrl: string): Promise<void> {
+    const p = this.roleService.driverProfile();
+    if (!p) return;
+    this.uploadingPhoto.set(true);
+    try {
+      await this.driversService.updateDriver(p.id, { photoUrl: dataUrl });
+    } finally {
+      this.uploadingPhoto.set(false);
+    }
+  }
+
+  private resizeToDataUrl(file: File, w: number, h: number): Promise<string> {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d')!;
+        const ratio = Math.max(w / img.width, h / img.height);
+        const sw = w / ratio, sh = h / ratio;
+        const sx = (img.width - sw) / 2, sy = (img.height - sh) / 2;
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.80));
+      };
+      img.src = URL.createObjectURL(file);
+    });
   }
 }

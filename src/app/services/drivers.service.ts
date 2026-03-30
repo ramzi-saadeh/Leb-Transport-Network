@@ -1,7 +1,16 @@
 import { Injectable, inject } from '@angular/core';
 import {
-  Firestore, collection, collectionData, doc, docData,
-  addDoc, query, where, serverTimestamp, updateDoc
+  Firestore,
+  collection,
+  collectionData,
+  doc,
+  docData,
+  addDoc,
+  query,
+  where,
+  serverTimestamp,
+  updateDoc,
+  orderBy,
 } from '@angular/fire/firestore';
 import { Observable, firstValueFrom } from 'rxjs';
 import { Driver } from '../models/driver.model';
@@ -12,7 +21,7 @@ export class DriversService {
 
   getDriversByRoute(routeId: string): Observable<Driver[]> {
     const col = collection(this.firestore, 'drivers');
-    const q = query(col, where('routeId', '==', routeId));
+    const q = query(col, where('routeId', '==', routeId), orderBy('rating', 'desc'));
     return collectionData(q, { idField: 'id' }) as Observable<Driver[]>;
   }
 
@@ -38,14 +47,16 @@ export class DriversService {
     return collectionData(col, { idField: 'id' }) as Observable<Driver[]>;
   }
 
-  async registerDriver(driver: Omit<Driver, 'id' | 'rating' | 'ratingCount' | 'createdAt'>): Promise<string> {
+  async registerDriver(
+    driver: Omit<Driver, 'id' | 'rating' | 'ratingCount' | 'createdAt'>
+  ): Promise<string> {
     const col = collection(this.firestore, 'drivers');
-    
+
     // Check if a driver with this plate already exists (e.g. created via Review by Plate)
     if (driver.plateNumber) {
       const q = query(col, where('plateNumber', '==', driver.plateNumber));
       const existing = await firstValueFrom(collectionData(q, { idField: 'id' }));
-      
+
       if (existing && existing.length > 0) {
         const existingDriver = existing[0] as Driver;
         // If it's a placeholder (no UID or different UID), "take it over"

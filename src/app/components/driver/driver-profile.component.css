@@ -22,6 +22,31 @@
   display: inline-block;
 }
 
+.photo-upload-btn {
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-primary);
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  box-shadow: 0 1px 4px rgba(0,0,0,.25);
+  transition: opacity .15s;
+}
+
+.photo-upload-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 .profile-photo {
   width: 100px;
   height: 100px;

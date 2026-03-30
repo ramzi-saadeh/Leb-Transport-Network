@@ -47,8 +47,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   private readonly mapSig = signal<L.Map | null>(null);
   private driverMarkers = new Map<string, L.Marker>();
+  private driverInfoCache = new Map<string, { name: string; plate: string }>();
   private routePolyline: L.Polyline | null = null;
   private liveSub: any;
+  /** True once the user manually drags the map — stops auto-follow. */
+  private userHasPanned = false;
+  /** True after the first driver position is received for the current route. */
+  private hasAutoZoomed = false;
 
   goBack() {
     this.location.back();
@@ -70,6 +75,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       this.clearDriverMarkers();
       this.clearPolyline();
       if (this.liveSub) this.liveSub.unsubscribe();
+      // Reset follow state on every route change
+      this.userHasPanned = false;
+      this.hasAutoZoomed = false;
       if (!routeId || !map) return;
 
       this.drawRoutePolyline(routeId, map);
@@ -90,11 +98,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       zoomControl: false,
     });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap',
+      attribution: '\u00a9 OpenStreetMap',
       maxZoom: 18,
     }).addTo(m);
     L.control.zoom({ position: 'bottomright' }).addTo(m);
-    this.mapSig.set(m); // triggers the route effect to subscribe
+    // Stop auto-follow if the user manually drags
+    m.on('dragstart', () => { this.userHasPanned = true; });
+    this.mapSig.set(m);
   }
 
   onRouteChange(id: string): void {
@@ -114,23 +124,40 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     map.fitBounds(this.routePolyline.getBounds(), { padding: [60, 60] });
   }
 
+  private buildDriverIcon(heading: number, isFull: boolean): L.DivIcon {
+    const border = isFull ? '#EF4444' : '#F5A623';
+    const glow = isFull ? 'rgba(239,68,68,0.25)' : 'rgba(245,166,35,0.25)';
+    const fullBadge = isFull
+      ? `<span style="position:absolute;top:-6px;right:-6px;background:#EF4444;color:#fff;font-size:9px;font-weight:800;padding:2px 4px;border-radius:99px;border:2px solid #fff;white-space:nowrap;">FULL</span>`
+      : '';
+    return L.divIcon({
+      html: `<div style="position:relative;width:48px;height:48px;border-radius:50%;
+          background:#1E3A5F;border:3px solid ${border};
+          box-shadow:0 4px 14px rgba(0,0,0,0.55),0 0 0 4px ${glow};
+          display:flex;align-items:center;justify-content:center;
+          animation:bounce 1s ease-in-out infinite alternate;">
+          <span style="font-size:24px;line-height:1;display:block;transform:rotate(${heading}deg);">🚌</span>
+          ${fullBadge}
+        </div>`,
+      className: '',
+      iconAnchor: [24, 24],
+    });
+  }
+
   private updateDriverMarkers(drivers: LiveDriverLocationWithId[], map: L.Map): void {
     const seen = new Set<string>();
     for (const d of drivers) {
       seen.add(d.id);
-      const icon = L.divIcon({
-        html: `<div style="
-          width:48px;height:48px;border-radius:50%;
-          background:#1E3A5F;border:3px solid #F5A623;
-          box-shadow:0 4px 14px rgba(0,0,0,0.55),0 0 0 4px rgba(245,166,35,0.25);
-          display:flex;align-items:center;justify-content:center;
-          animation:bounce 1s ease-in-out infinite alternate;
-        "><span style="font-size:24px;line-height:1;">🚌</span></div>`,
-        className: '',
-        iconAnchor: [24, 24],
-      });
+      const icon = this.buildDriverIcon(d.heading ?? 0, !!d.isFull);
       if (this.driverMarkers.has(d.id)) {
-        this.driverMarkers.get(d.id)!.setLatLng([d.lat, d.lng]);
+        const m = this.driverMarkers.get(d.id)!;
+        m.setLatLng([d.lat, d.lng]);
+        m.setIcon(icon);
+        // Refresh popup so the Bus Full tag reflects the current state
+        const cached = this.driverInfoCache.get(d.id);
+        if (cached) {
+          m.setPopupContent(this.buildPopupHtml(d.id, cached.name, cached.plate, !!d.isFull));
+        }
       } else {
         const marker = L.marker([d.lat, d.lng], { icon })
           .addTo(map)
@@ -141,11 +168,9 @@ export class MapComponent implements AfterViewInit, OnDestroy {
           .then((driver) => {
             if (!driver) return;
             const name = driver.name || 'Unknown Driver';
-            const plate = driver.plateNumber ? `<br/>🔢 ${driver.plateNumber}` : '';
-            // const speed = Math.round(d.speed);
-            marker.setPopupContent(
-              `<strong>🚌 ${name}</strong>${plate}<br/><a href="/drivers/${d.id}" style="color:#F5A623;font-size:12px;">View profile →</a>`,
-            );
+            const plate = driver.plateNumber || '';
+            this.driverInfoCache.set(d.id, { name, plate });
+            marker.setPopupContent(this.buildPopupHtml(d.id, name, plate, !!d.isFull));
           })
           .catch(() => {});
       }
@@ -157,19 +182,36 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         this.driverMarkers.delete(id);
       }
     }
+
+    // Auto-zoom toward live driver(s) — only on the first update, only if user hasn't panned
+    if (!this.userHasPanned && !this.hasAutoZoomed && drivers.length > 0) {
+      this.hasAutoZoomed = true;
+      if (drivers.length === 1) {
+        map.flyTo([drivers[0].lat, drivers[0].lng], 15, { animate: true, duration: 1.2 });
+      } else {
+        const bounds = L.latLngBounds(drivers.map(d => [d.lat, d.lng] as L.LatLngExpression));
+        map.flyToBounds(bounds, { padding: [60, 60], maxZoom: 15, animate: true, duration: 1.2 });
+      }
+    }
+  }
+
+  private buildPopupHtml(driverId: string, name: string, plate: string, isFull: boolean): string {
+    const plateHtml = plate ? `<br/>🔢 ${plate}` : '';
+    const fullHtml = isFull
+      ? `<br/><span style="color:#EF4444;font-weight:700;background:rgba(239,68,68,0.1);padding:2px 8px;border-radius:6px;display:inline-block;margin-top:4px;">🚫 Bus Full — Cannot board</span>`
+      : '';
+    return `<strong>🚌 ${name}</strong>${plateHtml}${fullHtml}<br/><a href="/drivers/${driverId}" style="color:#F5A623;font-size:12px;">View profile →</a>`;
   }
 
   private clearDriverMarkers(): void {
     this.driverMarkers.forEach((m) => m.remove());
     this.driverMarkers.clear();
+    this.driverInfoCache.clear();
     this.liveDrivers.set([]);
   }
 
   private clearPolyline(): void {
-    if (this.routePolyline) {
-      this.routePolyline.remove();
-      this.routePolyline = null;
-    }
+    if (this.routePolyline) { this.routePolyline.remove(); this.routePolyline = null; }
   }
 
   ngOnDestroy(): void {

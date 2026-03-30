@@ -58,7 +58,18 @@
           <span class="quick-label">{{ 'SHARED.MY_REVIEWS' | translate }}</span>
           <span class="quick-sub">{{ 'HOME.SEE_YOUR_RATINGS' | translate }}</span>
         </a>
-        } } @else if (!isPassenger()) {
+        }
+
+        <button
+          class="quick-card bus-full-card"
+          [class.is-full]="busIsFull()"
+          (click)="toggleBusFull()"
+        >
+          <span class="quick-icon">{{ busIsFull() ? '🚫' : '🚌' }}</span>
+          <span class="quick-label">{{ busIsFull() ? ('DRIVER.BUS_FULL' | translate) : ('DRIVER.BUS_AVAILABLE' | translate) }}</span>
+          <span class="quick-sub">{{ 'DRIVER.BUS_FULL_TOGGLE' | translate }}</span>
+        </button>
+        } @else if (!isPassenger()) {
         <a routerLink="/driver/register" class="quick-card driver-card">
           <span class="quick-icon">🚗</span>
           <span class="quick-label">{{ 'HOME.IM_A_DRIVER' | translate }}</span>
@@ -84,6 +95,19 @@
         <span class="info-icon">💡</span>
         <p class="info-text" [innerHTML]="'HOME.INFO_BANNER_TEXT' | translate"></p>
       </div>
+    </div>
+    }
+
+    <!-- Favorite Routes -->
+    @if (favoriteRoutes().length > 0) {
+    <div class="section p-lg" style="padding-bottom: 0">
+      <div class="section-header">
+        <h2>{{ 'HOME.FAVORITES' | translate }}</h2>
+        <span style="font-size:12px; color:var(--text-muted);">♥ {{ favoriteRoutes().length }}</span>
+      </div>
+      @for (route of favoriteRoutes(); track route.id) {
+        <app-route-card [route]="route" />
+      }
     </div>
     }
 

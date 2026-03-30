@@ -1,4 +1,4 @@
-import { Component, inject, computed, Signal, signal, OnDestroy } from '@angular/core';
+import { Component, inject, computed, Signal, signal, OnDestroy, effect } from '@angular/core';
 import { Share } from '@capacitor/share';
 import { Capacitor } from '@capacitor/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -7,8 +7,10 @@ import { CommonModule } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { RoutesService } from '../../services/routes.service';
 import { DriversService } from '../../services/drivers.service';
+import { DriverLocationService } from '../../services/driver-location.service';
 import { RouteCardComponent } from '../shared/route-card/route-card.component';
 import { RoleService } from '../../services/role.service';
+import { FavoritesService } from '../../services/favorites.service';
 import { Route } from '../../models/route.model';
 import { Driver } from '../../models/driver.model';
 
@@ -65,15 +67,27 @@ export class HomeComponent implements OnDestroy {
     return (this.allRoutes() || []).find((r) => r.id === id) || null;
   });
 
+  readonly favoriteRoutes = computed(() => {
+    const ids = this.favoritesService.favoriteIds();
+    if (!ids.length) return [];
+    return this.allRoutes().filter(r => ids.includes(r.id!));
+  });
+
+  readonly busIsFull = signal<boolean>(false);
+
   private readonly routesService = inject(RoutesService);
   private readonly driversService = inject(DriversService);
+  private readonly driverLocationService = inject(DriverLocationService);
   private readonly roleService = inject(RoleService);
+  private readonly favoritesService = inject(FavoritesService);
 
   readonly shareCopied = signal(false);
   private shareCopiedTimer: ReturnType<typeof setTimeout> | null = null;
+  private busSub: any;
 
   ngOnDestroy(): void {
     if (this.shareCopiedTimer) clearTimeout(this.shareCopiedTimer);
+    if (this.busSub) this.busSub.unsubscribe();
   }
 
   async shareApp(): Promise<void> {
@@ -99,5 +113,24 @@ export class HomeComponent implements OnDestroy {
   constructor() {
     this.allRoutes = toSignal(this.routesService.getRoutes(), { initialValue: [] });
     this.allDrivers = toSignal(this.driversService.getAllDrivers(), { initialValue: [] });
+
+    // Sync busIsFull from RTDB so home page always reflects current state
+    effect(() => {
+      const profile = this.driverProfile();
+      if (this.busSub) this.busSub.unsubscribe();
+      if (profile?.id) {
+        this.busSub = this.driverLocationService.getDriverFullStatus(profile.id).subscribe(isFull => {
+          this.busIsFull.set(isFull);
+        });
+      }
+    });
+  }
+
+  async toggleBusFull(): Promise<void> {
+    const profile = this.driverProfile();
+    if (!profile?.id) return;
+    const next = !this.busIsFull();
+    this.busIsFull.set(next);
+    await this.driverLocationService.setFull(profile.id, next);
   }
 }

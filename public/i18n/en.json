@@ -52,7 +52,11 @@
   "DRIVER": {
     "ON_DUTY": "On Duty",
     "OFF_DUTY": "Off Duty",
-    "VERIFIED_BADGE": "Trusted",
+    "VERIFIED_BADGE": "Verified",
+    "TRUSTED_BADGE": "Trusted",
+    "BUS_FULL": "🚫 Full",
+    "BUS_AVAILABLE": "🚌 Available",
+    "BUS_FULL_TOGGLE": "Toggle Bus Full",
     "SHARE": "Share Route",
     "LINK_COPIED": "Link Copied!",
     "GPS_TITLE": "GPS Required",
@@ -83,7 +87,8 @@
     "NO_ROUTES_FOUND": "No routes found.<br>Try a different search.",
     "INVITE_LABEL": "Invite Friends",
     "INVITE_SUB": "Share & install the app",
-    "INVITE_COPIED": "Link Copied!"
+    "INVITE_COPIED": "Link Copied!",
+    "FAVORITES": "♥ Favorite Routes"
   },
   "SPLASH": {
     "TITLE": "Lebanon Bus Guide",
@@ -173,5 +178,35 @@
     "DENIED_TITLE": "Location is turned off",
     "DENIED_BODY": "Go to your phone's Settings → Privacy → Location, and allow location for your browser. Then reload the app.",
     "DISMISS": "Dismiss"
+  },
+  "ROUTE_DETAIL": {
+    "FREQUENCY": "Frequency",
+    "FLEXIBLE": "Flexible",
+    "STOPS": "Stops",
+    "FLEX_NOTICE": "Buses on this route <strong>may stop anywhere</strong> along the road. Press ✋ \"I'm Waiting\" to signal your location to the driver.",
+    "IM_WAITING": "✋ I'm Waiting",
+    "REVIEW_PLATE": "📝 Review Plate",
+    "DRIVERS_TITLE": "Drivers on this Route",
+    "LIVE_NOW": "live now",
+    "SORTED_BY_RATING": "✓ Verified drivers first · ⭐ then by highest rating",
+    "NO_DRIVERS": "No drivers registered yet.",
+    "BE_FIRST": "Be the first to register!",
+    "REGISTER_BTN": "Register as Driver",
+    "FAVORITE": "Save to favorites",
+    "UNFAVORITE": "Remove from favorites"
+  },
+  "DRIVER_PROFILE": {
+    "ONLINE": "● Online",
+    "OFFLINE": "○ Offline",
+    "RATINGS": "ratings",
+    "CALL": "📞 Call",
+    "REVIEWS_TITLE": "Passenger Reviews",
+    "NO_REVIEWS": "No reviews yet.",
+    "RATE_TITLE": "Rate this driver",
+    "RATING_REQUIRED": "⚠ Please select a star rating",
+    "COMMENT_PLACEHOLDER": "Leave a comment (optional)…",
+    "SUBMITTING": "Submitting…",
+    "SUBMIT_RATING": "Submit Rating",
+    "THANKS": "Thanks for your rating!"
   }
 }

@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "913055164085",
+    "firebase_url": "https://leb-bus-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "leb-bus",
+    "storage_bucket": "leb-bus.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:913055164085:android:4503a308fc6a487ccf80fc",
+        "android_client_info": {
+          "package_name": "com.bus.leb"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIf_NYGsEW1y3MPNqxENUHW9AYsDEbmGU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

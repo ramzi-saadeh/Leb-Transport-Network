@@ -7,6 +7,7 @@ import { RoleService } from '../../../services/role.service';
 import { DriversService } from '../../../services/drivers.service';
 import { CommonModule } from '@angular/common';
 import { LanguageService } from '../../../services/language.service';
+import { NotificationsService } from '../../../services/notifications.service';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
@@ -20,6 +21,7 @@ export class NavbarComponent {
   private readonly roleService = inject(RoleService);
   private readonly driversService = inject(DriversService);
   private readonly langService = inject(LanguageService);
+  private readonly notificationsService = inject(NotificationsService);
 
   readonly isPassenger = computed(() => this.roleService.isPassenger());
   readonly isDriver = computed(() => this.roleService.isDriver());
@@ -41,7 +43,16 @@ export class NavbarComponent {
   async toggleDuty(): Promise<void> {
     const profile = this.roleService.driverProfile();
     if (!profile?.id) return;
-    await this.driversService.updateDriver(profile.id, { isActive: !this.isOnDuty });
+    const goingOnDuty = !this.isOnDuty;
+    await this.driversService.updateDriver(profile.id, { isActive: goingOnDuty });
+    // Subscribe / unsubscribe from route topic so driver receives/stops receiving notifications
+    if (profile.routeId) {
+      if (goingOnDuty) {
+        await this.notificationsService.subscribeToRouteTopic(profile.routeId);
+      } else {
+        await this.notificationsService.unsubscribeFromRouteTopic(profile.routeId);
+      }
+    }
   }
 
   toggleLanguage() {

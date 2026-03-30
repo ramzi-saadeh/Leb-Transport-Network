@@ -52,7 +52,11 @@
   "DRIVER": {
     "ON_DUTY": "في الخدمة",
     "OFF_DUTY": "خارج الخدمة",
-    "VERIFIED_BADGE": "موثوق",
+    "VERIFIED_BADGE": "موثّق",
+    "TRUSTED_BADGE": "موثوق",
+    "BUS_FULL": "🚫 ممتلئ",
+    "BUS_AVAILABLE": "🚌 متاح",
+    "BUS_FULL_TOGGLE": "تفعيل/تعطيل الحافلة ممتلئة",
     "SHARE": "مشاركة المسار",
     "LINK_COPIED": "تم نسخ الرابط!",
     "GPS_TITLE": "GPS مطلوب",
@@ -83,7 +87,8 @@
     "NO_ROUTES_FOUND": "لم يتم العثور على مسارات.<br>حاول البحث بشكل مختلف.",
     "INVITE_LABEL": "دعوة الأصدقاء",
     "INVITE_SUB": "شارك وثبّت التطبيق",
-    "INVITE_COPIED": "تم نسخ الرابط!"
+    "INVITE_COPIED": "تم نسخ الرابط!",
+    "FAVORITES": "♥ المسارات المفضلة"
   },
   "SPLASH": {
     "TITLE": "دليل حافلات لبنان",
@@ -173,5 +178,35 @@
     "DENIED_TITLE": "الموقع الجغرافي معطَّل",
     "DENIED_BODY": "انتقل إلى إعدادات هاتفك ← الخصوصية ← الموقع، وامنح الإذن للمتصفح. ثم أعِد تحميل التطبيق.",
     "DISMISS": "إغلاق"
+  },
+  "ROUTE_DETAIL": {
+    "FREQUENCY": "التكرار",
+    "FLEXIBLE": "مرن",
+    "STOPS": "المحطات",
+    "FLEX_NOTICE": "حافلات هذا المسار <strong>قد تتوقف في أي مكان</strong> على الطريق. اضغط ✋ \"أنا أنتظر\" للإشارة إلى موقعك للسائق.",
+    "IM_WAITING": "✋ أنا أنتظر",
+    "REVIEW_PLATE": "📝 تقييم اللوحة",
+    "DRIVERS_TITLE": "السائقون على هذا المسار",
+    "LIVE_NOW": "مباشر الآن",
+    "SORTED_BY_RATING": "✓ الموثّقون أولاً · ⭐ ثم حسب التقييم",
+    "NO_DRIVERS": "لا يوجد سائقون مسجلون بعد.",
+    "BE_FIRST": "كن أول من يسجل!",
+    "REGISTER_BTN": "سجّل كسائق",
+    "FAVORITE": "حفظ في المفضلات",
+    "UNFAVORITE": "إزالة من المفضلات"
+  },
+  "DRIVER_PROFILE": {
+    "ONLINE": "● متصل",
+    "OFFLINE": "○ غير متصل",
+    "RATINGS": "تقييمات",
+    "CALL": "📞 اتصل",
+    "REVIEWS_TITLE": "تقييمات الركاب",
+    "NO_REVIEWS": "لا توجد تقييمات بعد.",
+    "RATE_TITLE": "قيّم هذا السائق",
+    "RATING_REQUIRED": "⚠ يرجى اختيار تقييم بالنجوم",
+    "COMMENT_PLACEHOLDER": "اترك تعليقاً (اختياري)…",
+    "SUBMITTING": "جارٍ الإرسال…",
+    "SUBMIT_RATING": "إرسال التقييم",
+    "THANKS": "شكراً على تقييمك!"
   }
 }

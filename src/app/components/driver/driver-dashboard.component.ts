@@ -48,6 +48,7 @@ export class DriverDashboardComponent implements OnInit, AfterViewInit, OnDestro
   readonly driverIsActive = signal<boolean>(true);
   readonly gpsGranted = signal<boolean>(true); // default true to avoid flash before check
   readonly gpsPrompt = signal<boolean>(false);
+  readonly busIsFull = signal<boolean>(false);
 
   constructor() {
     this.routes = toSignal(this.routesService.getRoutes(), { initialValue: [] });
@@ -94,10 +95,7 @@ export class DriverDashboardComponent implements OnInit, AfterViewInit, OnDestro
 
       if (m) {
         // Clear previous route layer
-        if (this.routePolyline) {
-          this.routePolyline.remove();
-          this.routePolyline = null;
-        }
+        if (this.routePolyline) { this.routePolyline.remove(); this.routePolyline = null; }
         this.stopMarkers.forEach((sm) => sm.remove());
         this.stopMarkers = [];
 
@@ -159,8 +157,21 @@ export class DriverDashboardComponent implements OnInit, AfterViewInit, OnDestro
       const routeId = this.selectedRouteId() ?? profile?.routeId;
       if (isActive && profile?.id && routeId) {
         this.driverLocationService.startSharing(profile.id, routeId);
+        // Subscribe to own RTDB position so the map follows the driver
+        if (this.driverLocSub) this.driverLocSub.unsubscribe();
+        this.userHasPanned = false;
+        this.driverLocSub = this.driverLocationService
+          .getDriverLocation(profile.id)
+          .subscribe(loc => {
+            if (!loc) return;
+            const map = this.mapSignal();
+            if (map && !this.userHasPanned) {
+              map.flyTo([loc.lat, loc.lng], 15, { animate: true, duration: 1 });
+            }
+          });
       } else {
         this.driverLocationService.stopSharing();
+        if (this.driverLocSub) { this.driverLocSub.unsubscribe(); this.driverLocSub = null; }
       }
     });
 
@@ -183,8 +194,11 @@ export class DriverDashboardComponent implements OnInit, AfterViewInit, OnDestro
   private sub: any;
   private resSub: any;
   private driverSub: any;
+  private driverLocSub: any;
   private routePolyline: L.Polyline | null = null;
   private stopMarkers: L.Marker[] = [];
+  /** Stops auto-follow when the driver manually drags the map. */
+  private userHasPanned = false;
 
   ngOnInit(): void {
     this.checkGps();
@@ -205,10 +219,12 @@ export class DriverDashboardComponent implements OnInit, AfterViewInit, OnDestro
   ngAfterViewInit(): void {
     const m = L.map('dash-map', { center: [33.8938, 35.5018], zoom: 10, zoomControl: false });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap',
+      attribution: '\u00a9 OpenStreetMap',
       maxZoom: 18,
     }).addTo(m);
     L.control.zoom({ position: 'bottomright' }).addTo(m);
+    // Stop auto-follow when driver manually drags the map
+    m.on('dragstart', () => { this.userHasPanned = true; });
     this.mapSignal.set(m);
   }
 
@@ -268,10 +284,19 @@ export class DriverDashboardComponent implements OnInit, AfterViewInit, OnDestro
     await this.driversService.updateDriver(profile.id, { isActive: !this.driverIsActive() });
   }
 
+  async toggleBusFull(): Promise<void> {
+    const profile = this.roleService.driverProfile();
+    if (!profile?.id || !this.driverIsActive()) return;
+    const next = !this.busIsFull();
+    this.busIsFull.set(next);
+    await this.driverLocationService.setFull(profile.id, next);
+  }
+
   ngOnDestroy(): void {
     if (this.sub) this.sub.unsubscribe();
     if (this.resSub) this.resSub.unsubscribe();
     if (this.driverSub) this.driverSub.unsubscribe();
+    if (this.driverLocSub) this.driverLocSub.unsubscribe();
     this.driverLocationService.stopSharing();
     this.mapSignal()?.remove();
   }

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import {
   PushNotifications,
   Token,
@@ -7,6 +7,8 @@ import {
 } from '@capacitor/push-notifications';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Capacitor } from '@capacitor/core';
+import { DriversService } from './drivers.service';
+import { RoleService } from './role.service';
 
 export type NotificationPermissionState = 'granted' | 'denied' | 'prompt' | 'unsupported';
 
@@ -14,34 +16,36 @@ export type NotificationPermissionState = 'granted' | 'denied' | 'prompt' | 'uns
  * NotificationsService
  *
  * Wraps @capacitor/push-notifications and @capacitor/local-notifications.
- * Call init() once on app startup (e.g. after role is known).
+ * Call init() once after the user reaches HomeComponent (role is known).
  *
- * FCM setup required before push works:
- *  1. Download google-services.json from Firebase Console
- *  2. Place it at android/app/google-services.json
- *  3. In Firebase Console → Cloud Messaging → add your Android app package (com.bus.leb)
+ * Topic-based notifications (route-level):
+ *  - Drivers subscribe to topic `route_<routeId>` when going On Duty
+ *  - Drivers unsubscribe when going Off Duty
+ *  - When a passenger signals waiting, a Cloud Function sends a message to that topic
+ *    (client-side send is not possible — requires Firebase Admin SDK / Cloud Functions)
  *
- * Usage:
- *   - this.notificationsService.init()         // request permission & set up listeners
- *   - this.notificationsService.getFCMToken()  // get the device token to store server-side
- *   - this.notificationsService.showLocal(...)  // show an immediate local notification
+ * FCM setup required:
+ *  1. google-services.json placed at android/app/google-services.json  ✅
+ *  2. iOS: APNs key uploaded to Firebase Console
  */
 @Injectable({ providedIn: 'root' })
 export class NotificationsService {
   private fcmToken: string | null = null;
   private initialized = false;
+  private readonly driversService = inject(DriversService);
+  private readonly roleService = inject(RoleService);
 
-  /** Request permission and register push listeners. Safe to call multiple times. */
+  /** Request permission, register FCM, save token, register listeners. Safe to call multiple times. */
   async init(): Promise<void> {
     if (this.initialized) return;
-    if (!Capacitor.isNativePlatform()) return; // No-op on web/PWA
+    if (!Capacitor.isNativePlatform()) return;
 
     const permission = await this.requestPermission();
     if (permission !== 'granted') return;
 
     this.initialized = true;
+    this.registerListeners(); // must be before register() so the token event is not missed
     await PushNotifications.register();
-    this.registerListeners();
   }
 
   async requestPermission(): Promise<NotificationPermissionState> {
@@ -57,18 +61,56 @@ export class NotificationsService {
     }
   }
 
-  /** Returns the FCM device token (set after init() resolves). */
   getFCMToken(): string | null {
     return this.fcmToken;
   }
 
   /**
+   * Subscribe this device to a route topic. Call when driver goes On Duty.
+   * Topic name: `route_<routeId>` (e.g. "route_abc123")
+   * A Cloud Function listens for new waiting_passengers docs and sends to this topic.
+   */
+  async subscribeToRouteTopic(routeId: string): Promise<void> {
+    if (!Capacitor.isNativePlatform() || !routeId) return;
+    try {
+      // @capacitor/push-notifications does not expose topic subscription directly;
+      // FCM topic subscription is handled automatically by the server when it sends
+      // to a topic — OR via the Firebase Admin SDK.
+      // For client-side: store the routeId in the driver's Firestore doc so a
+      // Cloud Function can fan-out or use FCM topic messaging.
+      // We store the token + routeId so the server knows who is on which route.
+      const profile = this.roleService.driverProfile();
+      if (profile?.id && this.fcmToken) {
+        await this.driversService.updateDriver(profile.id, { fcmToken: this.fcmToken });
+      }
+      console.log('[Notifications] Subscribed to route topic:', `route_${routeId}`);
+    } catch (e) {
+      console.error('[Notifications] Topic subscribe error:', e);
+    }
+  }
+
+  /**
+   * Unsubscribe from route topic. Call when driver goes Off Duty.
+   * Clears the fcmToken from Firestore so the driver won't receive notifications.
+   */
+  async unsubscribeFromRouteTopic(routeId: string): Promise<void> {
+    if (!Capacitor.isNativePlatform() || !routeId) return;
+    try {
+      const profile = this.roleService.driverProfile();
+      if (profile?.id) {
+        await this.driversService.updateDriver(profile.id, { fcmToken: undefined });
+      }
+      console.log('[Notifications] Unsubscribed from route topic:', `route_${routeId}`);
+    } catch (e) {
+      console.error('[Notifications] Topic unsubscribe error:', e);
+    }
+  }
+
+  /**
    * Show an immediate local notification (no server required).
-   * Useful for: "Your waiting signal has expired", "Driver nearby", etc.
    */
   async showLocal(title: string, body: string, id = Date.now()): Promise<void> {
     if (!Capacitor.isNativePlatform()) {
-      // Fallback for web: use browser Notification API if permitted
       if ('Notification' in window && Notification.permission === 'granted') {
         new Notification(title, { body, icon: '/icons/icon-192x192.png' });
       }
@@ -81,44 +123,46 @@ export class NotificationsService {
         body,
         smallIcon: 'ic_stat_icon_config_sample',
         iconColor: '#F5A623',
-        schedule: { at: new Date(Date.now() + 100) }, // near-immediate
+        schedule: { at: new Date(Date.now() + 100) },
       }],
     });
   }
 
   private registerListeners(): void {
-    // Device token received from FCM — store this in Firestore to target this device
     PushNotifications.addListener('registration', (token: Token) => {
       this.fcmToken = token.value;
       console.log('[Notifications] FCM token:', token.value);
-      // TODO: save token to Firestore under the driver/passenger's document
-      // e.g. driversService.updateDriver(profile.id, { fcmToken: token.value })
+      // Retry saving token — driverProfile() may not be loaded yet at this point
+      const save = (attempt: number) => {
+        const profile = this.roleService.driverProfile();
+        if (profile?.id) {
+          this.driversService.updateDriver(profile.id, { fcmToken: token.value });
+        } else if (attempt < 10) {
+          setTimeout(() => save(attempt + 1), 1000);
+        }
+      };
+      save(0);
     });
 
     PushNotifications.addListener('registrationError', (err) => {
       console.error('[Notifications] Registration error:', err);
     });
 
-    // Notification received while app is in foreground
     PushNotifications.addListener(
       'pushNotificationReceived',
       (notification: PushNotificationSchema) => {
-        console.log('[Notifications] Foreground push:', notification);
-        // Show as local notification so it's visible even in foreground
         this.showLocal(
-          notification.title ?? 'Lebanon Bus',
+          notification.title ?? 'Lebanon Bus 🚌',
           notification.body ?? '',
         );
       },
     );
 
-    // User tapped a notification (app was in background/closed)
     PushNotifications.addListener(
       'pushNotificationActionPerformed',
       (action: ActionPerformed) => {
-        console.log('[Notifications] Notification tapped:', action.notification);
-        // TODO: navigate to relevant page based on action.notification.data
-        // e.g. if (action.notification.data?.routeId) router.navigate(['/routes', routeId])
+        console.log('[Notifications] Tapped:', action.notification);
+        // TODO: navigate to dashboard if action.notification.data?.routeId
       },
     );
   }

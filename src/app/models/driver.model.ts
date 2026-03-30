@@ -11,5 +11,7 @@ export interface Driver {
   isActive: boolean;
   rating: number;
   ratingCount: number;
+  fcmToken?: string;   // FCM device token — used to target push notifications
+  verified?: boolean;  // Admin-controlled verification flag
   createdAt?: any;
 }

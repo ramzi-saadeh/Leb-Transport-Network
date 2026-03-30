@@ -113,6 +113,32 @@
           <h2>{{ 'SETTINGS.DRIVER_PROFILE' | translate }}</h2>
         </div>
         <div class="bus-card p-md">
+
+          <!-- Photo row -->
+          <div class="photo-row">
+            <div class="photo-wrap-sm">
+              @if (driverDoc()?.photoUrl) {
+                <img [src]="driverDoc()!.photoUrl" alt="Profile photo" class="avatar-sm" />
+              } @else {
+                <div class="avatar-sm avatar-placeholder-sm">🧑‍✈️</div>
+              }
+              <input #photoInput type="file" accept="image/*" capture="user" style="display:none" (change)="onFileSelected($event)">
+              <button
+                class="photo-upload-btn-sm"
+                (click)="pickAndUploadPhoto()"
+                [disabled]="uploadingPhoto()"
+                aria-label="Change photo">
+                {{ uploadingPhoto() ? '⏳' : '📷' }}
+              </button>
+            </div>
+            <div>
+              <p style="margin:0; font-weight:600; font-size:14px;">Profile Photo</p>
+              <p style="margin:4px 0 0; font-size:12px; color:var(--text-muted);">Tap to change · visible to passengers</p>
+            </div>
+          </div>
+
+          <div class="divider" style="margin: 16px 0;"></div>
+
           <div class="form-group">
             <label class="form-label">{{ 'SETTINGS.FULL_NAME' | translate }}</label>
             <input

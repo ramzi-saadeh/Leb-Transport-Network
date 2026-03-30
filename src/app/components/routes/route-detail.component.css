@@ -150,3 +150,43 @@
   0%, 100% { opacity: 1; transform: scale(1); }
   50%       { opacity: 0.5; transform: scale(1.4); }
 }
+
+.fav-btn {
+  background: none;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  font-size: 18px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: transform .15s, color .15s, border-color .15s, background .15s;
+  flex-shrink: 0;
+}
+.fav-btn:hover { transform: scale(1.1); }
+.fav-btn--active {
+  color: #EF4444;
+  border-color: rgba(239,68,68,0.5);
+  background: rgba(239,68,68,0.08);
+}
+
+.verified-badge--admin {
+  background: rgba(59,130,246,0.15);
+  color: #3B82F6;
+  border-color: rgba(59,130,246,0.35);
+}
+
+.full-badge {
+  display: inline-block;
+  background: rgba(239,68,68,0.12);
+  color: #EF4444;
+  border: 1px solid rgba(239,68,68,0.35);
+  border-radius: 99px;
+  padding: 1px 7px;
+  font-weight: 700;
+}

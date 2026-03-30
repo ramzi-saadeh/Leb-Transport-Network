@@ -9,6 +9,7 @@ import { WaitingPassengersService } from '../../services/waiting-passengers.serv
 import { GeolocationService } from '../../services/geolocation.service';
 import { AuthService } from '../../services/auth.service';
 import { RoleService } from '../../services/role.service';
+import { NotificationsService } from '../../services/notifications.service';
 import { Route } from '../../models/route.model';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -64,6 +65,7 @@ export class WaitingComponent implements OnInit {
   private readonly geoService = inject(GeolocationService);
   private readonly authService = inject(AuthService);
   private readonly roleService = inject(RoleService);
+  private readonly notificationsService = inject(NotificationsService);
   private readonly locationService = inject(Location);
 
   goBack() { this.locationService.back(); }
@@ -96,6 +98,12 @@ export class WaitingComponent implements OnInit {
       );
       this.activeDocId.set(docId);
       this.state.set('waiting');
+      // Notify drivers on this route via local notification
+      // (server-side Cloud Function will send FCM to `route_<routeId>` topic)
+      await this.notificationsService.showLocal(
+        '✋ Passenger Waiting',
+        `${this.count()} passenger(s) waiting on your route.`,
+      );
     } catch (err: any) {
       this.errorMsg.set(this.friendlyGeoError(err));
       this.state.set('error');

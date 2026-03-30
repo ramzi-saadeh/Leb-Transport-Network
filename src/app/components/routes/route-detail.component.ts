@@ -8,9 +8,10 @@ import { DriversService } from '../../services/drivers.service';
 import { DriverLocationService } from '../../services/driver-location.service';
 import { RoleService } from '../../services/role.service';
 import { SEOService } from '../../services/seo.service';
+import { FavoritesService } from '../../services/favorites.service';
 import { StarRatingComponent } from '../shared/star-rating/star-rating.component';
 import { Location } from '@angular/common';
-import { switchMap } from 'rxjs';
+import { switchMap, map } from 'rxjs';
 import { Route } from '../../models/route.model';
 import { LiveDriverLocationWithId } from '../../models/driver-location.model';
 
@@ -29,6 +30,16 @@ export class RouteDetailComponent implements OnDestroy {
   readonly copied = signal(false);
   readonly liveDrivers = signal<LiveDriverLocationWithId[]>([]);
   readonly liveCount = computed(() => this.liveDrivers().length);
+  readonly isFavorite = computed(() => this.favoritesService.isFavorite(this.id()));
+
+  /** Check if a driver is currently broadcasting "bus full" */
+  isDriverFull(driverId: string): boolean {
+    return this.liveDrivers().find(d => d.id === driverId)?.isFull ?? false;
+  }
+
+  toggleFavorite(): void {
+    this.favoritesService.toggle(this.id());
+  }
 
   private readonly roleService = inject(RoleService);
   private readonly routesService = inject(RoutesService);
@@ -37,6 +48,7 @@ export class RouteDetailComponent implements OnDestroy {
   private readonly seoService = inject(SEOService);
   private readonly translate = inject(TranslateService);
   private readonly location = inject(Location);
+  private readonly favoritesService = inject(FavoritesService);
 
   private liveSub: any;
   private copiedTimer: ReturnType<typeof setTimeout> | null = null;
@@ -51,7 +63,13 @@ export class RouteDetailComponent implements OnDestroy {
     );
     this.drivers = toSignal(
       toObservable(this.id).pipe(
-        switchMap(id => this.driversService.getDriversByRoute(id))
+        switchMap(id => this.driversService.getDriversByRoute(id)),
+        map(drivers => [...drivers].sort((a, b) => {
+          const aV = a.verified ? 1 : 0;
+          const bV = b.verified ? 1 : 0;
+          if (bV !== aV) return bV - aV;
+          return b.rating - a.rating;
+        }))
       ),
       { initialValue: [] }
     );

@@ -1,6 +1,6 @@
 <div class="page-container">
   <div class="page-scroll">
-    <button class="btn-ghost back-floating" (click)="goBack()">← Back</button>
+    <button class="btn-ghost back-floating" (click)="goBack()">← {{ 'SHARED.BACK' | translate }}</button>
 
     @if (driver()) {
       <!-- Hero photo -->
@@ -12,8 +12,19 @@
             <div class="profile-photo photo-placeholder">🧑‍✈️</div>
           }
           <div class="status-badge" [class.online]="driver()!.isActive">
-            {{ driver()!.isActive ? '● Online' : '○ Offline' }}
+            {{ driver()!.isActive ? ('DRIVER_PROFILE.ONLINE' | translate) : ('DRIVER_PROFILE.OFFLINE' | translate) }}
           </div>
+          @if (isOwnProfile()) {
+            <!-- Hidden file input for web fallback -->
+            <input #photoInput type="file" accept="image/*" capture="user" style="display:none" (change)="onFileSelected($event)">
+            <button
+              class="photo-upload-btn"
+              (click)="pickAndUploadPhoto()"
+              [disabled]="uploadingPhoto()"
+              aria-label="Change photo">
+              {{ uploadingPhoto() ? '⏳' : '📷' }}
+            </button>
+          }
         </div>
       </div>
 
@@ -23,14 +34,17 @@
         @if (driver()!.nameAr) {
           <p class="driver-name-ar">{{ driver()!.nameAr }}</p>
         }
-        @if (driver()!.ratingCount >= 5 && driver()!.rating >= 4.0) {
-          <span class="verified-badge">✓ Trusted</span>
-        }
+        @if (driver()!.verified) {
+          <span class="verified-badge verified-badge--admin">✓ {{ 'DRIVER.VERIFIED_BADGE' | translate }}</span>
+        } 
+        <!-- @else if (driver()!.ratingCount >= 5 && driver()!.rating >= 4.0) {
+          <span class="verified-badge">⭐ {{ 'DRIVER.TRUSTED_BADGE' | translate }}</span>
+        } -->
 
         <div class="rating-row">
           <app-star-rating [value]="driver()!.rating" [readonly]="true" />
           <span class="rating-val">{{ driver()!.rating.toFixed(1) }}</span>
-          <span class="text-muted">({{ driver()!.ratingCount }} ratings)</span>
+          <span class="text-muted">({{ driver()!.ratingCount }} {{ 'DRIVER_PROFILE.RATINGS' | translate }})</span>
         </div>
 
         <!-- Stats chips -->
@@ -45,16 +59,16 @@
 
         <!-- Contact -->
         <a [href]="'tel:' + driver()!.phone" class="contact-btn">
-          📞 Call {{ driver()!.phone }}
+          {{ 'DRIVER_PROFILE.CALL' | translate }} {{ driver()!.phone }}
         </a>
 
         <div class="divider"></div>
 
         <!-- Reviews List -->
         <div class="reviews-section">
-          <h3 style="margin-bottom:16px;">Passenger Reviews</h3>
+          <h3 style="margin-bottom:16px;">{{ 'DRIVER_PROFILE.REVIEWS_TITLE' | translate }}</h3>
           @if (ratings().length === 0) {
-            <p class="text-muted" style="font-size:14px;">No reviews yet.</p>
+            <p class="text-muted" style="font-size:14px;">{{ 'DRIVER_PROFILE.NO_REVIEWS' | translate }}</p>
           } @else {
             <div class="reviews-list">
               @for (r of ratings(); track r.id) {
@@ -77,30 +91,30 @@
         <!-- Rate this driver -->
         @if (isPassenger() && !hasRated()) {
           <div class="rate-section">
-            <h3 style="margin-bottom:12px;">Rate this driver</h3>
+            <h3 style="margin-bottom:12px;">{{ 'DRIVER_PROFILE.RATE_TITLE' | translate }}</h3>
             <div [class.rating-invalid]="showValidation() && myRating() === 0">
               <app-star-rating [(value)]="myRating" />
               @if (showValidation() && myRating() === 0) {
-                <span class="field-error">⚠ Please select a star rating</span>
+                <span class="field-error">{{ 'DRIVER_PROFILE.RATING_REQUIRED' | translate }}</span>
               }
             </div>
             <textarea
               class="form-input mt-md"
               rows="3"
-              placeholder="Leave a comment (optional)…"
+              [placeholder]="'DRIVER_PROFILE.COMMENT_PLACEHOLDER' | translate"
               [(ngModel)]="myComment"
               style="resize:none;"></textarea>
             <button
               class="btn-primary mt-md"
               (click)="submitRating()"
               [disabled]="submitting()">
-              {{ submitting() ? 'Submitting…' : 'Submit Rating' }}
+              {{ submitting() ? ('DRIVER_PROFILE.SUBMITTING' | translate) : ('DRIVER_PROFILE.SUBMIT_RATING' | translate) }}
             </button>
           </div>
         } @else if (isPassenger() && hasRated()) {
           <div class="rated-banner">
             <span>⭐</span>
-            <p style="margin:0; font-size:14px;">Thanks for your rating!</p>
+            <p style="margin:0; font-size:14px;">{{ 'DRIVER_PROFILE.THANKS' | translate }}</p>
           </div>
         }
       </div>

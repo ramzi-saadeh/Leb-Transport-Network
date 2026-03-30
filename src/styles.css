@@ -394,6 +394,11 @@ select.form-input {
   color: var(--success);
   border: 1px solid rgba(34,197,94,0.3);
 }
+.verified-badge--admin {
+  background: rgba(59,130,246,0.15);
+  color: #3B82F6;
+  border-color: rgba(59,130,246,0.35);
+}
 
 /* ---- Duty Toggle (Driver Dashboard) ---- */
 .duty-toggle {
@@ -413,6 +418,19 @@ select.form-input {
   background: rgba(34,197,94,0.15);
   border-color: rgba(34,197,94,0.4);
   color: var(--success);
+}
+.duty-toggle.bus-full-toggle {
+  padding: 5px 10px;
+  font-size: 15px;
+}
+.duty-toggle.bus-full-toggle.is-full {
+  background: rgba(239,68,68,0.15);
+  border-color: rgba(239,68,68,0.4);
+  color: #EF4444;
+}
+.duty-toggle.bus-full-toggle:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 /* ---- Already Rated Notice ---- */

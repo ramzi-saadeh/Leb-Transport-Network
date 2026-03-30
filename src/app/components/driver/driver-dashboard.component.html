@@ -39,7 +39,15 @@
       <span class="text-accent" style="font-weight: 800">{{ markers.length }}</span>
       <span class="text-muted" style="font-size: 12px"> locations</span>
     </div>
-    <div class="stat-pill" style="margin-inline-start: auto">
+    <div class="stat-pill" style="margin-inline-start: auto; display:flex; gap:8px;">
+      <button
+        class="duty-toggle bus-full-toggle"
+        [class.is-full]="busIsFull()"
+        [disabled]="!driverIsActive()"
+        (click)="toggleBusFull()"
+        [title]="'DRIVER.BUS_FULL_TOGGLE' | translate">
+        {{ busIsFull() ? ('DRIVER.BUS_FULL' | translate) : '🚌' }}
+      </button>
       <button class="duty-toggle" [class.on-duty]="driverIsActive()" (click)="toggleDutyStatus()">
         {{ (driverIsActive() ? 'DRIVER.ON_DUTY' : 'DRIVER.OFF_DUTY') | translate }}
       </button>
